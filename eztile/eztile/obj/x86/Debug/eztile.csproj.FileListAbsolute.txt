@@ -1,0 +1,25 @@
+C:\Documents Locaux\Visual Studio 2010\Projects\eztile\eztile\bin\Debug\eztile.exe
+C:\Documents Locaux\Visual Studio 2010\Projects\eztile\eztile\bin\Debug\eztile.pdb
+C:\Documents Locaux\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Documents Locaux\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\eztile.Form1.resources
+C:\Documents Locaux\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\eztile.Properties.Resources.resources
+C:\Documents Locaux\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Documents Locaux\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Documents Locaux\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\eztile.exe
+C:\Documents Locaux\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\eztile.pdb
+C:\Documents Locaux\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\eztile.newMap.resources
+C:\Documents Locaux\Visual Studio 2010\Projects\eztile\eztile\bin\Debug\UtilStJ.dll
+C:\Documents Locaux\Visual Studio 2010\Projects\eztile\eztile\bin\Debug\UtilStJ.xml
+C:\Users\Francis\Documents\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\eztile.exe
+C:\Users\Francis\Documents\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\eztile.pdb
+C:\Users\Francis\Documents\Visual Studio 2010\Projects\eztile\eztile\bin\Debug\eztile.exe
+C:\Users\Francis\Documents\Visual Studio 2010\Projects\eztile\eztile\bin\Debug\eztile.pdb
+C:\Users\Francis\Documents\Visual Studio 2010\Projects\eztile\eztile\bin\Debug\UtilStJ.dll
+C:\Users\Francis\Documents\Visual Studio 2010\Projects\eztile\eztile\bin\Debug\UtilStJ.xml
+C:\Users\Francis\Documents\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\eztile.csprojResolveAssemblyReference.cache
+C:\Users\Francis\Documents\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\eztile.newMap.resources
+C:\Users\Francis\Documents\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\eztile.Properties.Resources.resources
+C:\Users\Francis\Documents\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\eztile.csproj.GenerateResource.Cache
+C:\Users\Francis\Documents\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\eztile.mainWindow.resources
+C:\Users\Francis\Documents\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\eztile.About.resources
+C:\Users\Francis\Documents\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\eztile.newTileSheet.resources

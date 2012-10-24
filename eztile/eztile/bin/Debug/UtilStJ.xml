@@ -1,0 +1,1613 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>UtilStJ</name>
+    </assembly>
+    <members>
+        <member name="T:UtilStJ.DChangement`1">
+            <summary>
+            Type pour les fonctions qui seront appelées lors de la notification du modèle observateur
+            offert par Document&lt;T> (un IObservable&lt;T>), mais qui ne veulent que le pull (elles 
+            recevront seulement la donnée qui devrait être le document).
+            </summary>
+            <typeparam name="T">Le type des données qui seront envoyées par le document lors des
+            notifications : ici ce sera normalement le document justement.</typeparam>
+            <param name="doc">Le document qui envoie la notification.</param>
+        </member>
+        <member name="T:UtilStJ.DChangementPushPull`1">
+            <summary>
+            Type pour les fonctions qui seront appelées lors de la notification du modèle observateur
+            offert par Document&lt;T> (un IObservable&lt;T>). Ce type de délégué reçoit le document
+            et les données de notification, permettant ainsi de faire du modèle push et pull
+            (contrairement à ce qui est offert par l'interface System.IObservable&lt;T> de base, qui
+            est exclusivement push, en principe).
+            </summary>
+            <typeparam name="T">Le type des données qui seront envoyées par le document lors des
+            notifications.</typeparam>
+            <param name="doc">Le document qui envoie la notification.</param>
+            <param name="info">La donnée envoyée par la notification.</param>
+        </member>
+        <member name="T:UtilStJ.Document`1">
+            <summary>
+            Classe générique dont devrait dériver les classes de documents pour être le sujet dans une
+            implémentation du modèle observateur (les observateurs seront des System.IObserver&lt;T>).
+            En plus d'implémenter la façon standard .NET, cette classe offre une notification directe
+            par un événement Changement qui implémente directement le modèle pull en plus du push.
+            Cette implémentation de base n'appelle jamais directement OnError ni OnCompleted sur ses
+            observateurs...
+            </summary>
+            <typeparam name="T">Le type des données qui seront envoyées par le document lors des
+            notifications. Pour implémenter un modèle pull, on peut utiliser CRTP et utiliser la
+            classe de document pour ce type (class ClDocument : Document&lt;ClDocument>).</typeparam>
+        </member>
+        <member name="M:UtilStJ.Document`1.Subscribe(System.IObserver{`0})">
+            <summary>
+            Implémentation de IObservable&lt;T>.Subscribe permettant l'inscription d'observateurs
+            à la liste des observateurs à notifier.
+            </summary>
+            <param name="observer">L'observateur à ajouter à la liste des observateurs.</param>
+            <returns>Un objet permettant la désinscription automatique ou manuelle.</returns>
+        </member>
+        <member name="M:UtilStJ.Document`1.Unsubscribe(System.IObserver{`0})">
+            <summary>
+            Fonction permettant la désinscription d'un observateur (N.B. Nom anglais pour
+            uniformiser, car cette fonction n'est pas dans IObservable&lt;T>.)
+            </summary>
+            <param name="observer">L'observateur à retire de la liste des observateurs.</param>
+            <returns>Un objet permettant la désinscription automatique ou manuelle.</returns>
+        </member>
+        <member name="M:UtilStJ.Document`1.Notifier(`0)">
+            <summary>
+            Doit être appelée par la classe de document dérivée pour notifier tous les observateurs.
+            Pour le modèle pull, le paramètre sera normalement le document.
+            </summary>
+            <param name="p_info">L'information à communiquer aux observateurs (sera normalement le
+            document en modèle pull).</param>
+        </member>
+        <member name="E:UtilStJ.Document`1.Changement">
+            <summary>
+            Événement permettant l'inscription à des notifications de type pull lors des changements.
+            </summary>
+        </member>
+        <member name="E:UtilStJ.Document`1.ChangementPushPull">
+            <summary>
+            Événement permettant l'inscription à des notifications de type push/pull lors des changements.
+            </summary>
+        </member>
+        <member name="T:UtilStJ.Désinscription`1">
+            <summary>
+            Classe de désinscription pour les observateurs. Parce qu'elle est IDisposable, la
+            désinscription pourrait être automatisée par un using (...), ou on peut appeler
+            directement Désinscrire sur l'objet.
+            </summary>
+            <typeparam name="T">Le type des données envoyées par le document lors des notifications.
+            </typeparam>
+        </member>
+        <member name="M:UtilStJ.Désinscription`1.Désinscrire">
+            <summary>
+            Désinscrit l'observateur du document, puis annule les références utilisées pour
+            simplifier le travail du GC. Voir aussi Dispose().
+            </summary>
+        </member>
+        <member name="M:UtilStJ.Désinscription`1.Dispose">
+            <summary>
+            Implémentation de la fonction de l'interface IDisposable. S'occupe de faire la
+            désinscription, exactement comme la méthode Désinscrire.
+            </summary>
+        </member>
+        <member name="T:UtilStJ.IObservateur">
+            Interface UtilStJ.IObservateur
+            <summary>
+            Interface que doivent implémenter les classes désirant recevoir les notifications du sujet.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.IObservateur.MettreÀJour(UtilStJ.ISujet,System.Object)">
+            Méthode IObservateur.MettreÀJour 
+            <summary>
+            Sera appelée par le sujet pour indiquer qu'il a subi des modifications.
+            <param name="p_sujet">
+            Le sujet qui a été modifié et provoqué la notification.
+            </param>
+            <param name="p_info"> 
+            Des informations permettant de savoir plus exactement les modifications apportées au sujet
+            (souvent null).
+            </param>
+            </summary>
+        </member>
+        <member name="T:UtilStJ.ISujet">
+            Interface UtilStJ.ISujet
+            <summary>
+            Interface que doivent implémenter les classes désirant être un sujet pour des observateurs. (Voir
+            classe Sujet)
+            </summary>
+        </member>
+        <member name="M:UtilStJ.ISujet.Attacher(UtilStJ.IObservateur)">
+            Méthode ISujet.Attacher
+            <summary>
+            À appeler pour s'inscrire auprès du sujet pour recevoir ensuite les notifications de
+            modification.
+            </summary>
+            <param name="p_obs">
+            L'objet désirant recevoir les notifications.
+            </param>
+        </member>
+        <member name="M:UtilStJ.ISujet.Détacher(UtilStJ.IObservateur)">
+            Méthode ISujet.Détacher
+            <summary>
+            À appeler pour ne plus recevoir les notifications du sujet.
+            </summary>
+            <param name="p_obs">
+            L'objet ne désirant plus recevoir les notifications.
+            </param>
+        </member>
+        <member name="M:UtilStJ.ISujet.Notifier">
+            Méthode ISujet.Notifier
+            <summary>
+            Doit être appelée après une modification du sujet si aucune information supplémentaire n'est
+            disponible.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.ISujet.Notifier(System.Object)">
+            Méthode ISujet.Notifier
+            <summary>
+            Doit être appelée après une modification du sujet si des informations supplémentaires sont
+            disponibles pour les observateurs à notifier.
+            </summary>
+            <param name="p_info">
+            L'information sur les modifications, à envoyer pour les observateurs (peut être null).
+            </param>
+        </member>
+        <member name="T:UtilStJ.Sujet">
+            Classe abstraite UtilStJ.Sujet
+            <summary>
+            Classe abstraite dont devrait simplement dériver la classe de document où sont gérées les données
+            de l'application.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.Sujet.Attacher(UtilStJ.IObservateur)">
+            Méthode Sujet.Attacher
+            <summary>
+            À appeler pour s'inscrire auprès du sujet pour recevoir ensuite les notifications de
+            modification. L'objet inscrit n'est pas automatiquement mise à jour (utile si on fait
+            l'incription pendant la construction de l'objet, qui ne serait alors pas toujours prêt à
+            recevoir des notifications).
+            </summary>
+            <param name="p_obs">
+            L'objet désirant recevoir les notifications.
+            </param>
+        </member>
+        <member name="M:UtilStJ.Sujet.AttacherAvecRappel(UtilStJ.IObservateur)">
+            Méthode Sujet.AttacherAvecRappel
+            <summary>
+            À appeler pour s'inscrire auprès du sujet pour recevoir ensuite les notifications de
+            modification. Après l'inscription, la mise à jour de l'objet inscrit est appelée. On devrait
+            utiliser cette fonction lors de l'inscription manuelle d'un objet déjà créé, mais pas si
+            l'inscription se fait pendant la construction de l'objet, car il pourrait ne pas être prêt à
+            traiter les notifications.
+            </summary>
+            <param name="p_obs">
+            L'objet désirant recevoir les notifications.
+            </param>
+        </member>
+        <member name="M:UtilStJ.Sujet.Détacher(UtilStJ.IObservateur)">
+            Méthode Sujet.Détacher
+            <summary>
+            À appeler pour ne plus recevoir les notifications du sujet.
+            </summary>
+            <param name="p_obs">
+            L'objet ne désirant plus recevoir les notifications.
+            </param>
+        </member>
+        <member name="M:UtilStJ.Sujet.Notifier">
+            Méthode Sujet.Notifier
+            <summary>
+            Doit être appelée après une modification du document si aucune information supplémentaire
+            n'est disponible.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.Sujet.Notifier(System.Object)">
+            Méthode Sujet.Notifier
+            <summary>
+            Doit être appelée après une modification du document si des informations supplémentaires sont
+            disponibles pour les observateurs à notifier.
+            </summary>
+            <param name="p_info">
+            L'information sur les modifications, à envoyer pour les observateurs (peut être null).
+            </param>
+        </member>
+        <member name="T:UtilStJ.BoutonRadioContrôleur">
+            Classe UtilStJ.BoutonRadioContrôleur
+            <summary>
+            Permet de désactiver automatiquement un contrôle selon l'état d'un bouton radio.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.BoutonRadioContrôleur.#ctor(System.Windows.Forms.RadioButton,System.Windows.Forms.Control)">
+            Constructeur de la classe BoutonRadioContrôleur
+            <summary>
+            Associe le bouton avec le contrôle à activer/désactiver
+            </summary>
+            <param name="p_boutonRadio">
+            Le bouton radio qui contrôlera l'activation de l'autre contrôle.
+            </param>
+            <param name="p_contrôle">
+            Le contrôle qui sera activé ou non selon l'état du bouton radio.
+            </param>
+        </member>
+        <member name="M:UtilStJ.BoutonRadioContrôleur.Inverser">
+            Méthode BoutonRadioContrôleur.Inverser
+            <summary>
+            Inverse le sens de l'activation (au départ, bouton coché == contrôle activé)
+            </summary>
+        </member>
+        <member name="M:UtilStJ.BoutonRadioContrôleur.boutonRadio_CheckedChanged(System.Object,System.EventArgs)">
+            Événement CheckedChanged du bouton radio contrôleur
+            <summary>
+            Active ou non le contrôle.
+            </summary>
+        </member>
+        <member name="T:UtilStJ.CaseÀCocherContrôleur">
+            Classe UtilStJ.CaseÀCocherContrôleur
+            <summary>
+            Permet de désactiver automatiquement un contrôle selon l'état d'une case à cocher.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.CaseÀCocherContrôleur.#ctor(System.Windows.Forms.CheckBox,System.Windows.Forms.Control)">
+            Constructeur de la classe BoutonRadioContrôleur
+            <summary>
+            Associe la case à cocher avec le contrôle à activer/désactiver.
+            </summary>
+            <param name="p_caseÀCocher">
+            La case à cocher qui contrôlera l'activation de l'autre contrôle.
+            </param>
+            <param name="p_contrôle">
+            Le contrôle qui sera activé ou non selon l'état de la case à cocher.
+            </param>
+        </member>
+        <member name="M:UtilStJ.CaseÀCocherContrôleur.Inverser">
+            Méthode CaseÀCocherContrôleur.Inverser
+            <summary>
+            Inverse le sens de l'activation (au départ, case cochée == contrôle activé)
+            </summary>
+        </member>
+        <member name="M:UtilStJ.CaseÀCocherContrôleur.caseÀCocher_CheckedChanged(System.Object,System.EventArgs)">
+            Événement CheckedChanged de la case à cocher contrôleur
+            <summary>
+            Active ou non le contrôle.
+            </summary>
+        </member>
+        <member name="T:UtilStJ.FormAvecExtracteurs">
+            Classe UtilStJ.FormAvecExtracteurs
+            <summary><para>Classe pour des formulaires fournissant simplement les fonctions static
+            d'extractions de données et de gestion des boutons d'options (boutons radio).</para>
+            <para>--</para>
+            <para>Toutes les fonctions d'extraction lèvent une exception de type ErreurExtraction quand une
+            erreur est détectée (l'exception contient le nom du champ responsable).</para>
+            </summary>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.SelectAll(System.Windows.Forms.Control)">
+            Méthode statique protégée FormAvecExtracteurs.SelectAll
+            <summary>
+            La vraie méthode SelectAll (des TextBox) n'est pas dans tous les contrôles alors ici on fait
+            simplement Select dans ces cas, si c'est possible. On met aussi le focus sur le contrôle.
+            </summary>
+            <param name="p_champ">
+            Le champ qu'il faut « sélectionner ».
+            </param>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.StringNonVide(System.Windows.Forms.Control,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.StringNonVide
+            <summary>
+            S'assure que le texte contient au moins un caractère non blanc après avoir enlevé les blancs
+            des extrémités.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à extraire et vérifier.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée (et sans espace aux extrémités).
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.StringAvecLongueurMinimum(System.Windows.Forms.Control,System.Int32,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.StringAvecLongueurMinimum
+            <summary>
+            S'assure que le texte contient la longueur minimum désirée après avoir enlevé les blancs des
+            extrémités.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à extraire et vérifier.
+            </param>
+            <param name="p_lgMinimum">
+            La longueur minimum acceptable (après un Trim()).
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée (et sans espace aux extrémités).
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.Double(System.Windows.Forms.Control,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.Double
+            <summary>
+            S'assure qu'il s'agit d'un nombre valide et convertit en System.Double.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.DoubleOuVide(System.Windows.Forms.Control,System.Double,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.DoubleOuVide
+            <summary>
+            Convertit en System.Double si la valeur est valide, mais accepte un texte vide qui est
+            remplacé par la valeur (sentinelle) spécifiée.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_valeurSiVide">
+            La valeur à renvoyer si aucune valeur n'a été fournie par l'utilisateur.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée ou la valeur sentinelle si vide.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.DoubleOuNull(System.Windows.Forms.Control,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.DoubleOuNull
+            <summary>
+            Convertit en System.Double (nullable) les nombres valides, renvoie null si le texte est vide.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée ou null.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.DoubleAvecMinimum(System.Windows.Forms.Control,System.Double,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.DoubleAvecMinimum
+            <summary>
+            Convertit en System.Double et vérifie que la valeur n'est pas sous le minimum demandé.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_min">
+            La valeur minimum acceptable.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.DoubleAvecMinimumOuVide(System.Windows.Forms.Control,System.Double,System.Double,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.DoubleAvecMinimumOuVide
+            <summary>
+            Convertit en System.Double et vérifie que la valeur n'est pas sous le minimum demandé, mais
+            accepte un texte vide qui est remplacé par la valeur (sentinelle) spécifiée.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_valeurSiVide">
+            La valeur à renvoyer si aucune valeur n'a été fournie par l'utilisateur.
+            </param>
+            <param name="p_min">
+            La valeur minimum acceptable.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée ou la valeur sentinelle si vide.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.DoubleAvecMinimumOuNull(System.Windows.Forms.Control,System.Double,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.DoubleAvecMinimumOuNull
+            <summary>
+            Convertit en System.Double (nullable) avec vérification d'une valeur minimum et renvoie null
+            si le texte est vide.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_min">
+            La valeur minimum acceptable.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée ou null.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.DoubleDansIntervalle(System.Windows.Forms.Control,System.Double,System.Double,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.DoubleDansIntervalle
+            <summary>
+            Convertit en System.Double et s'assure que la valeur est bien dans l'intervalle demandé.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_min">
+            La valeur minimum acceptable.
+            </param>
+            <param name="p_max">
+            La valeur maximum acceptable.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.DoubleDansIntervalleOuVide(System.Windows.Forms.Control,System.Double,System.Double,System.Double,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.DoubleDansIntervalleOuVide
+            <summary>
+            Convertit en System.Double et vérifie que la valeur est bien dans l'intervalle demandé. Si le
+            champ est vide, la valeur (sentinelle) spécifiées est renvoyée.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_valeurSiVide">
+            La valeur à renvoyer si aucune valeur n'a été fournie par l'utilisateur.
+            </param>
+            <param name="p_min">
+            La valeur minimum acceptable.
+            </param>
+            <param name="p_max">
+            La valeur maximum acceptable.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée ou la valeur sentinelle si vide.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.DoubleDansIntervalleOuNull(System.Windows.Forms.Control,System.Double,System.Double,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.DoubleDansIntervalleOuNull
+            <summary>
+            Convertit en System.Double (nullable) mais vérifie que la valeur est dans un intervalle de
+            valeurs acceptables et renvoie null si le texte est vide.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_min">
+            La valeur minimum acceptable.
+            </param>
+            <param name="p_max">
+            La valeur maximum acceptable.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée ou null.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.Int32(System.Windows.Forms.Control,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.Int32
+            <summary>
+            Convertit en System.Int32.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.Int32OuVide(System.Windows.Forms.Control,System.Int32,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.Int32OuVide
+            <summary>
+            Convertit en System.Int32 et accepte un texte vide qui est remplacé par la valeur
+            (sentinelle) spécifiée.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_valeurSiVide">
+            La valeur à renvoyer si aucune valeur n'a été fournie par l'utilisateur.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée ou la valeur indiquée si vide.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.Int32OuNull(System.Windows.Forms.Control,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.Int32OuNull
+            <summary>
+            Convertit en System.Int32 (nullable) et renvoie null si le texte est vide.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée ou null.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.Int32AvecMinimum(System.Windows.Forms.Control,System.Int32,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.Int32AvecMinimum
+            <summary>
+            Convertit en System.Int32 et s'assure que la valeur n'est pas sous le minimum demandé.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_min">
+            La valeur minimum acceptable.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.Int32AvecMinimumOuVide(System.Windows.Forms.Control,System.Int32,System.Int32,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.Int32AvecMinimumOuVide
+            <summary>
+            Convertit en System.Int32 et vérifie que la valeur n'est pas sous le minimum demandé, mais
+            accepte un texte vide qui est remplacé par la valeur (sentinelle) spécifiée.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_valeurSiVide">
+            La valeur à renvoyer si aucune valeur n'a été fournie par l'utilisateur.
+            </param>
+            <param name="p_min">
+            La valeur minimum acceptable.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée ou la valeur sentinelle si vide.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.Int32AvecMinimumOuNull(System.Windows.Forms.Control,System.Int32,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.Int32AvecMinimumOuNull
+            <summary>
+            Convertit en System.Int32 (nullable) avec vérification d'une valeur minimum et renvoie null
+            si le texte est vide.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_min">
+            La valeur minimum acceptable.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée ou null.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.Int32DansIntervalle(System.Windows.Forms.Control,System.Int32,System.Int32,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.Int32DansIntervalle
+            <summary>
+            Convertit en System.Int32 et s'assure que la valeur est bien dans l'intervalle demandé.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_min">
+            La valeur minimum acceptable.
+            </param>
+            <param name="p_max">
+            La valeur maximum acceptable.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.Int32DansIntervalleOuVide(System.Windows.Forms.Control,System.Int32,System.Int32,System.Int32,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.Int32DansIntervalleOuVide
+            <summary>
+            Convertit en System.Int32 et s'assure que la valeur est bien dans l'intervalle demandé. Si le
+            champ est vide, la valeur (sentinelle) spécifiée est renvoyée.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_valeurSiVide">
+            La valeur à renvoyer si aucune valeur n'a été fournie par l'utilisateur.
+            </param>
+            <param name="p_min">
+            La valeur minimum acceptable.
+            </param>
+            <param name="p_max">
+            La valeur maximum acceptable.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée ou la valeur indiquée si vide.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.Int32DansIntervalleOuNull(System.Windows.Forms.Control,System.Int32,System.Int32,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.Int32DansIntervalleOuNull
+            <summary>
+            Convertit en System.Int32 (nullable) mais s'assure que la valeur est dans un intervalle de
+            valeurs acceptables et renvoie null si le texte est vide.
+            </summary>
+            <param name="p_champ">
+            Le contrôle qui contient le texte à vérifier et convertir.
+            </param>
+            <param name="p_min">
+            La valeur minimum acceptable.
+            </param>
+            <param name="p_max">
+            La valeur maximum acceptable.
+            </param>
+            <param name="p_nomChamp">
+            Le nom du champ qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            La valeur vérifiée ou null.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.NoRadio(System.Windows.Forms.GroupBox,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.NoRadio
+            <summary>
+            S'assure qu'un bouton radio est sélectionnée et renvoie son index (numéroté à partir de 0).
+            </summary>
+            <param name="p_groupe">
+            Le contrôle (GroupBox) qui contient les boutons radio.
+            </param>
+            <param name="p_nomGroupe">
+            Le nom du groupe de boutons qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            Le numéro du bouton sélectionné (numéroté à partir de 0).
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.NoRadio(System.Windows.Forms.Panel,System.String)">
+            Méthode statique protégée FormAvecExtracteurs.NoRadio
+            <summary>
+            S'assure qu'un bouton radio est sélectionnée et renvoie son index (numéroté à partir de 0).
+            </summary>
+            <param name="p_groupe">
+            Le contrôle (Panel) qui contient les boutons radio.
+            </param>
+            <param name="p_nomGroupe">
+            Le nom du groupe de boutons qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            Le numéro du bouton sélectionné (numéroté à partir de 0).
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.NoRadio(System.Windows.Forms.Control.ControlCollection,System.Windows.Forms.Control,System.String)">
+            Méthode statique privée FormAvecExtracteurs.NoRadio
+            <summary>
+            S'assure qu'un bouton radio est sélectionnée et renvoie son index (numéroté à partir de 0).
+            Sert à implémenter les fonctions publiques (protégées en fait).
+            </summary>
+            <param name="p_groupe">
+            Le contrôle qui contient les boutons radio.
+            </param>
+            <param name="p_contrôle">
+            Pour mes tests de focus, pour le moment inutile...
+            </param>
+            <param name="p_nomGroupe">
+            Le nom du groupe de boutons qui devra apparaître dans les messages d'erreurs.
+            </param>
+            <returns>
+            Le numéro du bouton sélectionné (numéroté à partir de 0).
+            </returns>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.CocherBoutonRadio(System.Windows.Forms.GroupBox,System.Int32)">
+            Méthode statique protégée FormAvecExtracteurs.CocherBoutonRadio
+            <summary>
+            Sélectionne un bouton radio dans un GroupBox selon son numéro (numéroté à partir de 0).
+            </summary>
+            <param name="p_groupe">
+            Le GroupBox contenant les boutons radio.
+            </param>
+            <param name="p_noRadio">
+            Le numéro du bouton à sélectionner (numéroté à partir de 0).
+            </param>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.CocherBoutonRadio(System.Windows.Forms.Panel,System.Int32)">
+            Méthode statique protégée FormAvecExtracteurs.CocherBoutonRadio
+            <summary>
+            Sélectionne un bouton radio dans un Panel selon son numéro (numéroté à partir de 0).
+            </summary>
+            <param name="p_groupe">
+            Le Panel contenant les boutons radio.
+            </param>
+            <param name="p_noRadio">
+            Le numéro du bouton à sélectionner (numéroté à partir de 0).
+            </param>
+        </member>
+        <member name="M:UtilStJ.FormAvecExtracteurs.CocherBoutonRadio(System.Windows.Forms.Control.ControlCollection,System.Int32)">
+            Méthode statique privée FormAvecExtracteurs.CocherBoutonRadio
+            <summary>
+            Sélectionne un bouton radio dans une collection de contrôles selon son numéro (numéroté à
+            partir de 0). Sert à implémenter les fonctions publiques (protégées en fait).
+            </summary>
+            <param name="p_groupe">
+            La collection de contrôles contenant les boutons radio.
+            </param>
+            <param name="p_noRadio">
+            Le numéro du bouton à sélectionner (numéroté à partir de 0).
+            </param>
+        </member>
+        <member name="T:UtilStJ.Dialogue">
+            Classe UtilStJ.Dialogue
+            <summary><para>Un FormAvecExtracteurs avec propriétés ajustées pour les besoins des boîtes de
+            dialogue classique.</para>
+            <para>--</para>
+            <para>On doit absolument en dériver (devrait être abstract mais on ne peut pas pour l'éditeur
+             visuel), mais on devrait probablement dériver plutôt de la version DialogueOkAnnuler.</para>
+            </summary>
+        </member>
+        <member name="M:UtilStJ.Dialogue.#ctor">
+            Constructeur de la classe Dialogue
+            <summary>
+            Construit le formulaire en ajustant les propriétés nécessaires pour une boîte de dialogue
+            classique.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.Dialogue.ClicSurOK">
+            Méthode protégé Dialogue.ClicSurOK
+            <summary>
+            Active les validations au besoin et, si tout est valide, ferme la boîte en renvoyant
+            DialogResult.OK. À appeler de la fonction associée au clic sur le bouton OK ou équivalent.
+            (Design Pattern « template method » appelant AccepterOKSansValidation et ChampsValides)
+            </summary>
+        </member>
+        <member name="M:UtilStJ.Dialogue.ClicSurAnnuler">
+            Méthode protégé Dialogue.ClicSurAnnuler
+            <summary>
+            Ferme la boîte en renvoyant DialogResult.Cancel. À appeler de la fonction associée au clic
+            sur le bouton Annuler.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.Dialogue.AccepterOKSansValidation">
+            Méthode virtuelle protégée Dialogue.AccepterOKSansValidation
+            <summary>
+            À redéfinir, si on veut accepter le OK sans vérifier ChampsValides(). La version de
+            base accepte le OK sans validation si TypeDeSaisie est Affichage ou Suppression.
+            </summary>
+            <returns>
+            Doit renvoyer true si on ne veut pas faire appeler ChampsValides.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.Dialogue.ChampsValides">
+            Méthode virtuelle protégée Dialogue.ChampsValides
+            <summary>
+            À redéfinir pour faire les validations.
+            </summary>
+            <returns>
+            Doit renvoyer true si tous les champs sont valides seulement et qu'on veut fermer la boîte et
+            renvoyer DialogResult.OK, sinon la boîte reste ouverte (idem si on la quitte en levant une
+            exception de type ErreurExtraction).
+            </returns>
+        </member>
+        <member name="M:UtilStJ.Dialogue.Activation">
+            Méthode virtuelle protégée Dialogue.Activation
+            <summary>
+            À redéfinir pour faire des initialisations lorsque la boîte de dialogue est activée.
+            Contrairement au constructeur, on peut faire des Focus et toute autre opération sur les
+            contrôles, car ils ont été créés et sont prêts à être activés.
+            (remplace, en plus simple, l'association à l'événement Activated)
+            </summary>
+        </member>
+        <member name="P:UtilStJ.Dialogue.TypeDeSaisie">
+            Propriété protégée Dialogue.TypeDeSaisie
+            <summary>
+            Indique le type de saisie en cours (valeur par défaut TypeDeSaisie.Autre)
+            </summary>
+        </member>
+        <member name="T:UtilStJ.DialogueOkAnnuler">
+            Classe UtilStJ.DialogueOkAnnuler
+            <summary><para>Un FormAvecExtracteurs avec propriétés ajustées pour les besoins des boîtes de
+            dialogue classique et des boutons Ok et Annuler fonctionnel et placé par défaut en haut à gauche
+            (voir propriétés BoutonAnnulerVisible et PositionAutoDesBoutons)</para>
+            <para>--</para>
+            <para>On doit en dériver (devrait être abstract mais on ne peut pas pour l'éditeur visuel).</para>
+            </summary>
+        </member>
+        <member name="M:UtilStJ.DialogueOkAnnuler.#ctor">
+            Constructeur de la classe DialogueOkAnnuler
+            <summary>
+            Construit le formulaire en ajustant les propriétés nécessaires pour une boîte de dialogue
+            classique, en ajoutant des boutons OK et Annuler fonctionnels.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.DialogueOkAnnuler.ResumeLayout(System.Boolean)">
+            <summary>
+            Version locale de ResumeLayout pour intercepter les changements de propriétés de la boîte de
+            dialogue dérivée.
+            </summary>
+            <param name="flag">
+            Le flag est passé directement à ResumeLayout de Form : true to execute pending layout
+            requests; otherwise, false.
+            </param>
+        </member>
+        <member name="M:UtilStJ.DialogueOkAnnuler.OK_Clic(System.Object,System.EventArgs)">
+            Méthode protégé DialogueOkAnnuler.OK_Clic
+            <summary>
+            À affecter à l'événement Click d'un bouton. Appelle simplement ClicSurOK().
+            Déjà affecté au clic du vrai bouton OK.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.DialogueOkAnnuler.Annuler_Clic(System.Object,System.EventArgs)">
+            Méthode protégé Dialogue.Annuler_Clic
+            <summary>
+            À affecter à l'événement Click d'un bouton. Ferme la boîte en renvoyant
+            DialogResult.Cancel (comme ClicSurAnnuler).
+            Déjà affecté au clic du vrai bouton Annuler.
+            </summary>
+        </member>
+        <member name="P:UtilStJ.DialogueOkAnnuler.PositionAutoDesBoutons">
+            <summary>
+            Pour activer ou non le positionnement des boutons en haut à droite des boîtes de dialogue.
+            </summary>
+        </member>
+        <member name="P:UtilStJ.DialogueOkAnnuler.BoutonAnnulerVisible">
+            <summary>
+            Pour faire apparaître ou non le bouton Annuler
+            </summary>
+        </member>
+        <member name="P:UtilStJ.DialogueOkAnnuler.BoutonOK">
+            <summary>
+            Accès au bouton OK (pour activation/désactivation conditionnelle, etc.)
+            </summary>
+        </member>
+        <member name="P:UtilStJ.DialogueOkAnnuler.BoutonAnnuler">
+            <summary>
+            Accès au bouton Annuler (pour activation/désactivation conditionnelle, etc.)
+            </summary>
+        </member>
+        <member name="T:UtilStJ.TypeDeSaisie">
+            Type par énumération TypeDeSaisie
+            <summary>
+            Pour différencier les types de saisie dans les boîtes de dialogue.
+            </summary>
+        </member>
+        <member name="F:UtilStJ.TypeDeSaisie.Affichage">
+            TypeDeSaisie.Affichage
+            <summary>
+            Pour les b de d d'affichage seulement.
+            </summary>
+        </member>
+        <member name="F:UtilStJ.TypeDeSaisie.Ajout">
+            TypeDeSaisie.Ajout
+            <summary>
+            Pour les b de d d'ajout.
+            </summary>
+        </member>
+        <member name="F:UtilStJ.TypeDeSaisie.Modification">
+            TypeDeSaisie.Modification
+            <summary>
+            Pour les b de d de modification de données existantes.
+            </summary>
+        </member>
+        <member name="F:UtilStJ.TypeDeSaisie.Suppression">
+            TypeDeSaisie.Suppression
+            <summary>
+            Pour les b de d de présentation des données avant une suppression.
+            </summary>
+        </member>
+        <member name="F:UtilStJ.TypeDeSaisie.Autre">
+            TypeDeSaisie.Autre
+            <summary>
+            Pour toute b de d non classique.
+            </summary>
+        </member>
+        <member name="T:UtilStJ.ErreurExtraction">
+            Classe d'exceptions pour les erreurs d'extraction
+            <summary>
+            Sert à signaler les erreurs lors des extractions de champs des boîtes de dialogue.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.ErreurExtraction.#ctor(System.String)">
+            Constructeur de la classe ErreurExtraction
+            <summary>
+            Crée une exception avec le message indiqué.
+            </summary>
+            <param name="p_message">
+            Un message permettant d'identifier l'élément qui a provoqué l'erreur d'extraction
+            (normalement le nom du champ ou groupe). Actuellement ce paramètre n'est pas utilisé dans
+            les opérations de UtilStJ, mais est renvoyé par ClicSurOK.
+            </param>
+        </member>
+        <member name="T:UtilStJ.FormObservateur">
+            Classe UtilStJ.FormObservateur
+            <summary><para>Un FormAvecExtracteurs implémentant l'interface IObservateur.</para>
+            <para>--</para>
+            <para>On doit dériver de cette classe et redéfinir MettreÀJour (cette classe devrait être
+            abstraite, mais on ne peut pas si on veut pouvoir utiliser l'éditeur visuel).</para>
+            </summary>
+        </member>
+        <member name="M:UtilStJ.FormObservateur.#ctor">
+            Constructeur de la classe FormObservateur
+            <summary>
+            Ne pas utiliser ce constructeur !
+            </summary>
+        </member>
+        <member name="M:UtilStJ.FormObservateur.#ctor(UtilStJ.ISujet)">
+            Constructeur de la classe FormObservateur
+            <summary>
+            Permet de connecter le formulaire au sujet afin de pouvoir recevoir les notifications de
+            modification.
+            </summary>
+            <param name="p_sujet">
+            Le sujet auquel il faut être relié.
+            </param>
+        </member>
+        <member name="M:UtilStJ.FormObservateur.Finalize">
+            Destructeur de FormObservateur
+            <summary>
+            Déconnecte le sujet du formulaire au besoin.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.FormObservateur.Déconnecter">
+            Méthode protégée FormObservateur.Déconnecter()
+            <summary>
+            Déconnecte le sujet du formulaire s'il est connecté.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.FormObservateur.MettreÀJour(UtilStJ.ISujet,System.Object)">
+            Méthode virtuelle FormObservateur.MettreÀJour (on la voudrait abstraite mais l'éditeur visuel
+            ne veut pas !)
+            <summary>
+            Doit être redéfinie par les classes dérivées.
+            </summary>
+            <param name="p_sujet">
+            Le sujet qui envoie la notification.
+            </param>
+            <param name="p_info">
+            Une indication sur ce qui a provoqué la notification (ou null).
+            </param>
+        </member>
+        <member name="T:UtilStJ.DialogueObservateur">
+            Classe UtilStJ.DialogueObservateur
+            <summary><para>Une boîte de dialogue (UtilStJ.Dialogue) implémentant l'interface
+            IObservateur.</para>
+            <para>--</para>
+            <para>On doit dériver de cette classe et redéfinir MettreÀJour (cette classe devrait être
+            abstraite, mais on ne peut pas pour l'éditeur visuel).</para>
+            </summary>
+        </member>
+        <member name="M:UtilStJ.DialogueObservateur.#ctor">
+            Constructeur de la classe DialogueObservateur
+            <summary>
+            Ne pas utiliser ce constructeur !
+            </summary>
+        </member>
+        <member name="M:UtilStJ.DialogueObservateur.#ctor(UtilStJ.ISujet)">
+            Constructeur de la classe DialogueObservateur
+            <summary>
+            Permet de connecter la boîte de dialogue au sujet afin de pouvoir recevoir les notifications
+            de modification.
+            </summary>
+            <param name="p_sujet">
+            Le sujet auquel il faut être relié.
+            </param>
+        </member>
+        <member name="M:UtilStJ.DialogueObservateur.Déconnecter">
+            Méthode protégée DialogueObservateur.Déconnecter()
+            <summary>
+            Déconnecte le sujet du formulaire s'il est connecté.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.DialogueObservateur.Finalize">
+            Destructeur de la classe DialogueObservateur
+            <summary>
+            Se déconnecte du sujet (si ce n'est déjà fait).
+            </summary>
+        </member>
+        <member name="M:UtilStJ.DialogueObservateur.MettreÀJour(UtilStJ.ISujet,System.Object)">
+            Méthode virtuelle DialogueObservateur.MettreÀJour
+            <summary>
+            Doit être redéfinie pour répondre aux notifications du sujet. La version de base fait un
+            Debug.Assert.
+            </summary>
+            <param name="p_sujet">
+            Le sujet qui envoie la notification.
+            </param>
+            <param name="p_info">
+            Une indication sur ce qui a provoqué la notification (ou null).
+            </param>
+        </member>
+        <member name="T:UtilStJ.DialogueOkAnnulerObservateur">
+            Classe UtilStJ.DialogueOkAnnulerObservateur
+            <summary><para>Une boîte de dialogue UtilStJ.DialogueOkAnnuler implémentant l'interface
+            IObservateur.</para>
+            <para>--</para>
+            <para>On doit dériver de cette classe et redéfinir MettreÀJour (cette classe devrait être
+            abstraite, mais on ne peut pas pour l'éditeur visuel).</para>
+            </summary>
+        </member>
+        <member name="M:UtilStJ.DialogueOkAnnulerObservateur.#ctor">
+            Constructeur de la classe DialogueOkAnnulerObservateur
+            <summary>
+            Ne pas utiliser ce constructeur.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.DialogueOkAnnulerObservateur.#ctor(UtilStJ.ISujet)">
+            Constructeur de la classe DialogueOkAnnulerObservateur
+            <summary>
+            Permet de connecter la boîte de dialogue au sujet afin de pouvoir recevoir
+            les notifications de modification.
+            </summary>
+            <param name="p_sujet">
+            Le sujet auquel il faut être relié.
+            </param>
+        </member>
+        <member name="M:UtilStJ.DialogueOkAnnulerObservateur.Déconnecter">
+            Méthode protégée DialogueOkAnnulerObservateur.Déconnecter()
+            <summary>
+            Déconnecte le sujet du formulaire s'il est connecté.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.DialogueOkAnnulerObservateur.Finalize">
+            Destructeur de la classe DialogueOkAnnulerObservateur
+            <summary>
+            Se déconnecte du sujet (si ce n'est déjà fait).
+            </summary>
+        </member>
+        <member name="M:UtilStJ.DialogueOkAnnulerObservateur.MettreÀJour(UtilStJ.ISujet,System.Object)">
+            Méthode virtuelle DialogueOkAnnulerObservateur.MettreÀJour
+            <summary>
+            Doit être redéfinie pour répondre aux notifications du sujet. La version de base fait un
+            Debug.Assert.
+            </summary>
+            <param name="p_sujet">
+            Le sujet qui envoie la notification.
+            </param>
+            <param name="p_info">
+            Une indication sur ce qui a provoqué la notification (ou null).
+            </param>
+        </member>
+        <member name="T:UtilStJ.MB">
+            Classe statique UtilStJ.MB
+            <summary>Offre des fonctions statiques pour afficher les boîtes de message les plus courantes.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.MB.Avertir(System.String,System.Object[])">
+            Méthode statique MB.Avertir
+            <summary>
+            Affiche simplement le message (formaté au besoin) avec un bouton OK.
+            </summary>
+            <param name="p_message">
+            Le message à afficher. Peut contenir des codes de formatage (pour String.Format) qui ne
+            seront convertis que s'il y a des paramètres supplémentaires.
+            </param>
+            <param name="p_valeurs">
+            Paramètres facultatifs : les valeurs pour les codes de formatage contenus dans le message.
+            </param>
+        </member>
+        <member name="M:UtilStJ.MB.AvertirCritique(System.String,System.Object[])">
+            Méthode statique MB.AvertirCritique
+            <summary>
+            Affiche le message (formaté au besoin) avec un bouton OK et l'icône Stop.
+            </summary>
+            <param name="p_message">
+            Le message à afficher. Peut contenir des codes de formatage (pour String.Format) qui ne
+            seront convertis que s'il y a des paramètres supplémentaires.
+            </param>
+            <param name="p_valeurs">
+            Paramètres facultatifs : les valeurs pour les codes de formatage contenus dans le message.
+            </param>
+        </member>
+        <member name="M:UtilStJ.MB.ConfirmerOuiNon(System.String,System.Object[])">
+            Méthode statique MB.ConfirmerOuiNon
+            <summary>
+            Affiche le message (formaté au besoin) avec les boutons Oui/Non, renvoie true si Oui.
+            </summary>
+            <param name="p_message">
+            Le message à afficher. Peut contenir des codes de formatage (pour String.Format) qui ne
+            seront convertis que s'il y a des paramètres supplémentaires.
+            </param>
+            <param name="p_valeurs">
+            Paramètres facultatifs : les valeurs pour les codes de formatage contenus dans le message.
+            </param>
+            <returns>
+            Renvoie true si le bouton Oui a été choisi (false sinon).
+            </returns>
+        </member>
+        <member name="M:UtilStJ.MB.ConfirmerOkAnnuler(System.String,System.Object[])">
+            Méthode statique MB.ConfirmerOkAnnuler
+            <summary>
+            Affiche le message (formaté au besoin) avec les boutons OK/Annuler, renvoie vrai si OK.
+            </summary>
+            <param name="p_message">
+            Le message à afficher. Peut contenir des codes de formatage (pour String.Format) qui ne
+            seront convertis que s'il y a des paramètres supplémentaires.
+            </param>
+            <param name="p_valeurs">
+            Paramètres facultatifs : les valeurs pour les codes de formatage contenus dans le message.
+            </param>
+            <returns>
+            Renvoie true si le bouton Oui a été choisi (false sinon).
+            </returns>
+        </member>
+        <member name="T:UtilStJ.InfoApp">
+            Classe statique UtilStj.InfoApp
+            <summary>Offre des fonctions statiques donnant des informations sur l'assemblage courant, comme
+            le nom ou la version, provenant d'attributs normalement inscrits dans un fichier AssemblyInfo.
+            </summary>
+        </member>
+        <member name="P:UtilStJ.InfoApp.Nom">
+            Propriété statique InfoApp.Nom
+            <summary><para>Donne la valeur indiquée dans [assembly: AssemblyProduct("ici")] ou, à défaut,
+            le nom de l'assemblage donné à la création du projet.</para>
+            <para>--</para>
+            <para>System.Windows.Forms.Application.ProductName permet aussi d'obtenir la valeur de
+            l'attribut AssemblyProduct (mais pas l'autre nom).</para>
+            </summary>
+            <value>
+            La valeur indiquée dans [assembly: AssemblyProduct("ici")] ou, à défaut, le nom de
+            l'assemblage donné à la création du projet.
+            </value>
+        </member>
+        <member name="P:UtilStJ.InfoApp.Version">
+            Propriété statique InfoApp.Version
+            <summary><para>Donne la valeur complète de la version (Majeur.Mineur.Build.Revision),
+            obtenue à partir de l'attribut AssemblyVersion.</para>
+            <para>--</para>
+            <para>Les valeurs de Build et Revision sont regénérées à chaque compilation seulement s'il y
+            a un .* dans AssemblyVersion, par exemple [assembly: AssemblyVersion("1.0.*")]. Sinon on
+            devrait utiliser InfoApp.VersionSimple seulement.</para>
+            <para>--</para>
+            <para>System.Windows.Forms.Application.ProductVersion permet aussi d'obtenir cette
+            valeur.</para>
+            </summary>
+            <value>
+            La valeur complète de la version (Majeur.Mineur.Build.Revision), obtenue à partir de
+            l'attribut AssemblyVersion.
+            </value>
+        </member>
+        <member name="P:UtilStJ.InfoApp.VersionSimple">
+            Propriété statique InfoApp.VersionSimple
+            <summary>
+            Donne la valeur Majeur.Mineur de la version, obtenue à partir de l'attribut AssemblyVersion.
+            </summary>
+            <value>
+            La valeur Majeur.Mineur de la version, obtenue à partir de l'attribut AssemblyVersion.
+            </value>
+        </member>
+        <member name="T:UtilStJ.PaireIS">
+            Classe UtilStJ.PaireIS
+            <summary>
+            Associe un Int32 et une String (utiles pour les listes en particulier).
+            </summary>
+        </member>
+        <member name="M:UtilStJ.PaireIS.#ctor(System.Int32,System.String)">
+            Constructeur de la classe PaireIS
+            <summary>
+            Crée l'association entre le nombre et le texte.
+            </summary>
+            <param name="p_nb">
+            Le nombre de la paire.
+            </param>
+            <param name="p_s">
+            Le texte de la paire.
+            </param>
+        </member>
+        <member name="M:UtilStJ.PaireIS.ToString">
+            Méthode PaireIS.ToString
+            <summary>
+            Sera utilisée par les contrôles pour savoir quoi afficher.
+            </summary>
+            <returns>
+            Renvoie le texte de la paire.
+            </returns>
+        </member>
+        <member name="M:UtilStJ.PaireIS.GetHashCode">
+            Méthode PaireIS.GetHashCode
+            <summary>
+            Sera utilisée pour obtenir le nombre associé à l'item sélectionné à partir d'un Object.
+            </summary>
+            <returns>
+            Renvoie le nombre de la paire.
+            </returns>
+        </member>
+        <member name="F:UtilStJ.PaireIS.nombre">
+            <summary>
+            Le nombre de la paire.
+            </summary>
+        </member>
+        <member name="F:UtilStJ.PaireIS.texte">
+            <summary>
+            Le texte de la paire.
+            </summary>
+        </member>
+        <member name="T:UtilStJ.BdReader">
+            <summary>
+            Classe permettant l'exécution d'un énoncé SQL et la lecture de résultats sur plusieurs lignes.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.BdReader.#ctor(System.Data.OleDb.OleDbConnection,System.String,System.Object[])">
+            <summary>
+            Constructeur de BdReader permettant de spécifier la base de données, l'énoncé SQL SELECT ainsi que des
+            valeurs de paramètres pour les « ? » indiqués dans l'énoncé SQL.
+            </summary>
+            <param name="p_bd">Le lien à la base de données préalablement ouverte.</param>
+            <param name="p_énoncéSelect">L'énoncé SQL SELECT à exécuter. Peut être paramètré : des valeurs devront
+            être fournies en ordre pour chaque « ? » mis dans l'énoncé.</param>
+            <param name="p_params">Des valeurs fournies en ordre pour chaque « ? » mis dans l'énoncé SELECT. Mettre un null pour les valeurs nulles.</param>
+        </member>
+        <member name="M:UtilStJ.BdReader.#ctor(System.Data.OleDb.OleDbConnection,System.String,System.Data.OleDb.OleDbTransaction,System.Object[])">
+            <summary>
+            Constructeur de BdReader permettant de spécifier la base de données, l'énoncé SQL SELECT à exécuter dans une
+            transaction ainsi que des valeurs de paramètres pour les « ? » indiqués dans l'énoncé SQL.
+            </summary>
+            <param name="p_bd">Le lien à la base de données préalablement ouverte.</param>
+            <param name="p_énoncéSelect">L'énoncé SQL SELECT à exécuter. Peut être paramètré : des valeurs devront
+            être fournies en ordre pour chaque « ? » mis dans l'énoncé.</param>
+            <param name="p_transaction">La transaction en cours.</param>
+            <param name="p_params">Des valeurs fournies en ordre pour chaque « ? » mis dans l'énoncé SELECT. Mettre un null pour les valeurs nulles.</param>
+        </member>
+        <member name="M:UtilStJ.BdReader.GetString(System.Int32,System.String)">
+            <summary>
+            Renvoie la valeur d'un champ en System.String ou la valeur sentinelle fournie si le champ est un NULL.
+            </summary>
+            <param name="p_noChamp">Numéro du champ (colonne du résultat d'un SELECT), à partir de 0.</param>
+            <param name="p_valeurSentinelle">Valeur à renvoyer si le champ est un NULL.</param>
+        </member>
+        <member name="M:UtilStJ.BdReader.GetString(System.Int32)">
+            <summary>
+            Renvoie la valeur d'un champ en System.String, vide si le champ est NULL.
+            </summary>
+            <param name="p_noChamp">Numéro du champ (colonne du résultat d'un SELECT), à partir de 0.</param>
+        </member>
+        <member name="M:UtilStJ.BdReader.GetStringOuNull(System.Int32)">
+            <summary>
+            Renvoie la valeur d'un champ en System.String ou une valeur nulle (null en C#) si le champ est un NULL.
+            </summary>
+            <param name="p_noChamp">Numéro du champ (colonne du résultat d'un SELECT), à partir de 0.</param>
+        </member>
+        <member name="M:UtilStJ.BdReader.GetInt32EnString(System.Int32)">
+            <summary>
+            Renvoie la valeur d'un champ Int32 en System.String, vide si le champ est NULL.
+            </summary>
+            <param name="p_noChamp">Numéro du champ (colonne du résultat d'un SELECT), à partir de 0.</param>
+        </member>
+        <member name="M:UtilStJ.BdReader.GetInt32(System.Int32,System.Int32)">
+            <summary>
+            Renvoie la valeur d'un champ en System.Int32 ou la valeur sentinelle fournie si le champ est un NULL.
+            </summary>
+            <param name="p_noChamp">Numéro du champ (colonne du résultat d'un SELECT), à partir de 0.</param>
+            <param name="p_valeurSentinelle">Valeur à renvoyer si le champ est un NULL.</param>
+        </member>
+        <member name="M:UtilStJ.BdReader.GetInt32OuNull(System.Int32)">
+            <summary>
+            Renvoie la valeur d'un champ en System.Int32 annulable (valeur nulle si le champ est un NULL).
+            </summary>
+            <param name="p_noChamp">Numéro du champ (colonne du résultat d'un SELECT), à partir de 0.</param>
+        </member>
+        <member name="M:UtilStJ.BdReader.GetInt32(System.Int32)">
+            <summary>
+            Renvoie la valeur d'un champ en System.Int32 ou 0 si le champ est un NULL.
+            </summary>
+            <param name="p_noChamp">Numéro du champ (colonne du résultat d'un SELECT), à partir de 0.</param>
+        </member>
+        <member name="M:UtilStJ.BdReader.GetDouble(System.Int32,System.Double)">
+            <summary>
+            Renvoie la valeur d'un champ en System.Double ou la valeur sentinelle fournie si le champ est un NULL.
+            </summary>
+            <param name="p_noChamp">Numéro du champ (colonne du résultat d'un SELECT), à partir de 0.</param>
+            <param name="p_valeurSentinelle">Valeur à renvoyer si le champ est un NULL.</param>
+        </member>
+        <member name="M:UtilStJ.BdReader.GetDoubleOuNull(System.Int32)">
+            <summary>
+            Renvoie la valeur d'un champ en System.Double annulable (valeur nulle si le champ est un NULL).
+            </summary>
+            <param name="p_noChamp">Numéro du champ (colonne du résultat d'un SELECT), à partir de 0.</param>
+        </member>
+        <member name="M:UtilStJ.BdReader.GetDouble(System.Int32)">
+            <summary>
+            Renvoie la valeur d'un champ en System.Double (0.0 si le champ est un NULL).
+            </summary>
+        </member>
+        <member name="M:UtilStJ.BdReader.GetDateTime(System.Int32,System.DateTime)">
+            <summary>
+            Renvoie la valeur d'un champ en System.DateTime ou la valeur sentinelle fournie si le champ est un NULL.
+            </summary>
+            <param name="p_noChamp">Numéro du champ (colonne du résultat d'un SELECT), à partir de 0.</param>
+            <param name="p_valeurSentinelle">Valeur à renvoyer si le champ est un NULL.</param>
+        </member>
+        <member name="M:UtilStJ.BdReader.GetDateTime(System.Int32)">
+            <summary>
+            Renvoie la valeur d'un champ en System.DateTime (9999-01-01 si le champ est un NULL).
+            /// </summary>
+            <param name="p_noChamp">Numéro du champ (colonne du résultat d'un SELECT), à partir de 0.</param>
+        </member>
+        <member name="M:UtilStJ.BdReader.GetDateTimeOuNull(System.Int32)">
+            <summary>
+            Renvoie la valeur d'un champ en System.DateTime annulable (valeur nulle si le champ est un NULL).
+            </summary>
+            <param name="p_noChamp">Numéro du champ (colonne du résultat d'un SELECT), à partir de 0.</param>
+        </member>
+        <member name="M:UtilStJ.BdReader.GetBoolean(System.Int32)">
+            <summary>
+            Renvoie la valeur d'un champ en System.Boolean (aucune gestion des champs NULL).
+            </summary>
+            <param name="p_noChamp">Numéro du champ (colonne du résultat d'un SELECT), à partir de 0.</param>
+        </member>
+        <member name="M:UtilStJ.BdReader.IsDBNull(System.Int32)">
+            <summary>
+            Indique si le champ est une valeur NULL.
+            </summary>
+            <param name="p_noChamp">Numéro du champ (colonne du résultat d'un SELECT), à partir de 0.</param>
+        </member>
+        <member name="M:UtilStJ.BdReader.Read">
+            <summary>
+            Obtient la prochaine ligne du résultat d'un SELECT et renvoie true, ou renvoie false si aucune 
+            autre ligne n'est disponible. Si la fonction renvoie false, la requête est automatiquement fermée.
+            </summary>
+            <returns>true indique qu'une ligne était disponible, false indique que la lecture des lignes est terminée.</returns>
+        </member>
+        <member name="M:UtilStJ.BdReader.Close">
+            <summary>
+            Ferme la requête en cours. Chaque requête doit être fermée avant de pouvoir en faire une autre sur le même 
+            objet System.Data.OleDb.OleDbConnection, l'idéal est de faire un using si l'on ne prévoit pas lire les lignes
+            du résultat jusqu'à la fin.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.BdReader.Dispose">
+            <summary>
+            Ferme la base de données (cette fonction est normalement appelée automatiquement par les using, ne pas l'appeler
+            directement, il est plutôt préférable d'appeler Close().
+            </summary>
+        </member>
+        <member name="T:UtilStJ.BdNonQuery">
+            <summary>
+            Permet de faire facilement les énoncés SQL qui ne renvoient rien.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.BdNonQuery.#ctor(System.Data.OleDb.OleDbConnection,System.String,System.Object[])">
+            <summary>
+            Constructeur de BdNonQuery permettant de spécifier la base de données, l'énoncé SQL à exécuter, ainsi que des valeurs
+            de paramètres pour les « ? » indiqués dans l'énoncé SQL.
+            </summary>
+            <param name="p_bd">Le lien à la base de données préalablement ouverte.</param>
+            <param name="p_énoncéSQL">L'énoncé SQL à exécuter. Peut être paramètré : des valeurs devront
+            être fournies en ordre pour chaque « ? » mis dans l'énoncé.</param>
+            <param name="p_params">Des valeurs fournies en ordre pour chaque « ? » mis dans l'énoncé SQL. Mettre un null pour les valeurs nulles.</param>
+        </member>
+        <member name="M:UtilStJ.BdNonQuery.#ctor(System.Data.OleDb.OleDbConnection,System.String,System.Data.OleDb.OleDbTransaction,System.Object[])">
+            <summary>
+            Constructeur de BdNonQuery permettant de spécifier la base de données, l'énoncé SQL à exécuter dans une
+            transaction ainsi que des valeurs de paramètres pour les « ? » indiqués dans l'énoncé SQL.
+            </summary>
+            <param name="p_bd">Le lien à la base de données préalablement ouverte.</param>
+            <param name="p_énoncéSQL">L'énoncé SQL exécuter. Peut être paramètré : des valeurs devront
+            être fournies en ordre pour chaque « ? » mis dans l'énoncé.</param>
+            <param name="p_transaction">La transaction en cours.</param>
+            <param name="p_params">Des valeurs fournies en ordre pour chaque « ? » mis dans l'énoncé SQL. Mettre un null pour les valeurs nulles.</param>
+        </member>
+        <member name="M:UtilStJ.BdNonQuery.ExecuteNonQuery">
+            <summary>
+            Exécute l'énoncé SQL et renvoie le nombre de lignes affectées par celui-ci.
+            </summary>
+            <returns>Le nombre de lignes affectées.</returns>
+        </member>
+        <member name="T:UtilStJ.BdScalar">
+            <summary>
+            Permet de faire et exécuter facilement des SELECT qui renvoie une seule valeur simple.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.BdScalar.#ctor(System.Data.OleDb.OleDbConnection,System.String,System.Object[])">
+            <summary>
+            Constructeur de BdScalar à utiliser avec les fonctions Get. Il est plus simple d'utiliser les fonctions statiques BdScalar.Get&lt;Type&gt;. Peut
+            être utile pour tester les résultats NULL.
+            </summary>
+            <param name="p_bd">Le lien à la base de données préalablement ouverte.</param>
+            <param name="p_énoncéSQL">L'énoncé SQL à exécuter. Peut être paramètré : des valeurs devront
+            être fournies en ordre pour chaque « ? » mis dans l'énoncé.</param>
+            <param name="p_params">Des valeurs fournies en ordre pour chaque « ? » mis dans l'énoncé SQL. Mettre un null pour les valeurs nulles.</param>
+        </member>
+        <member name="M:UtilStJ.BdScalar.#ctor(System.Data.OleDb.OleDbConnection,System.String,System.Data.OleDb.OleDbTransaction,System.Object[])">
+            <summary>
+            Constructeur de BdScalar avec transaction à utiliser avec les fonctions Get.
+            </summary>
+            <param name="p_bd">Le lien à la base de données préalablement ouverte.</param>
+            <param name="p_énoncéSQL">L'énoncé SQL à exécuter. Peut être paramètré : des valeurs devront
+            être fournies en ordre pour chaque « ? » mis dans l'énoncé.</param>
+            <param name="p_transaction">La transaction en cours.</param>
+            <param name="p_params">Des valeurs fournies en ordre pour chaque « ? » mis dans l'énoncé SQL. Mettre un null pour les valeurs nulles.</param>
+        </member>
+        <member name="M:UtilStJ.BdScalar.GetString">
+            <summary>
+            Renvoie la donnée résultant de l'énoncé SELECT.
+            </summary>
+            <returns>Le résultat sous forme de String</returns>
+        </member>
+        <member name="M:UtilStJ.BdScalar.GetDouble">
+            <summary>
+            Renvoie la donnée résultant de l'énoncé SELECT.
+            </summary>
+            <returns>Le résultat sous forme de Double.</returns>
+        </member>
+        <member name="M:UtilStJ.BdScalar.GetDateTime">
+            <summary>
+            Renvoie la donnée résultant de l'énoncé SELECT.
+            </summary>
+            <returns>Le résultat sous forme de DateTime.</returns>
+        </member>
+        <member name="M:UtilStJ.BdScalar.GetInt32">
+            <summary>
+            Renvoie la donnée résultant de l'énoncé SELECT.
+            </summary>
+            <returns>Le résultat sous forme de Int32.</returns>
+        </member>
+        <member name="M:UtilStJ.BdScalar.GetBoolean">
+            <summary>
+            Renvoie la donnée résultant de l'énoncé SELECT.
+            </summary>
+            <returns>Le résultat sous forme de Boolean.</returns>
+        </member>
+        <member name="M:UtilStJ.BdScalar.IsDBNull">
+            <summary>
+            Permet de savoir si la donnée résultant de l'énoncé SELECT est un NULL.
+            </summary>
+            <returns>true indique que le résultat est un NULL.</returns>
+        </member>
+        <member name="M:UtilStJ.BdScalar.Get``1(System.Data.OleDb.OleDbConnection,System.String,System.Object[])">
+            <summary>
+            Renvoie la donnée résultant de l'énoncé SELECT fourni.
+            </summary>
+            <param name="p_bd">Le lien à la base de données préalablement ouverte.</param>
+            <param name="p_énoncéSQL">L'énoncé SQL à exécuter. Peut être paramètré : des valeurs devront
+            être fournies en ordre pour chaque « ? » mis dans l'énoncé.</param>
+            <param name="p_params">Des valeurs fournies en ordre pour chaque « ? » mis dans l'énoncé SQL. Mettre un null pour les valeurs nulles.</param>
+            <returns>Le résultat de la requête.</returns>
+        </member>
+        <member name="T:UtilStJ.BdCompteur">
+            <summary>
+            Permet de créer, détruire et consulter des compteurs dans la table Compteurs ayant les champ
+            nomCompteur (texte) et valeurCompteur (entier long).
+            </summary>
+        </member>
+        <member name="M:UtilStJ.BdCompteur.CréerCompteur(System.Data.OleDb.OleDbConnection,System.String,System.Int32)">
+            <summary>
+            Fonction permettant de créer un nouveau compteur dans la table Compteurs.
+            </summary>
+            <param name="p_bd">Le lien à la base de données préalablement ouverte.</param>
+            <param name="p_nomCompteur">Le nom du compteur à créer.</param>
+            <param name="p_valeurInitiale">La valeur initiale à utiliser pour le nouveau compteur.</param>
+        </member>
+        <member name="M:UtilStJ.BdCompteur.DétruireCompteur(System.Data.OleDb.OleDbConnection,System.String)">
+            <summary>
+            Fonction permettant d'enlever un compteur de la table Compteurs.
+            </summary>
+            <param name="p_bd">Le lien à la base de données préalablement ouverte.</param>
+            <param name="p_nomCompteur">Le nom du compteur à détruire.</param>
+        </member>
+        <member name="M:UtilStJ.BdCompteur.Valeur(System.Data.OleDb.OleDbConnection,System.String)">
+            <summary>
+            Donne la valeur actuelle et incrémente le compteur (atomique par transaction).
+            </summary>
+            <param name="p_bd">Le lien à la base de données préalablement ouverte.</param>
+            <param name="p_nomCompteur">Le nom du compteur à utiliser.</param>
+            <returns>La valeur nouvellement créée pour le compteur.</returns>
+        </member>
+        <member name="T:UtilStJ.CorrecteurDécimal">
+            Classe UtilStJ.CorrecteurDécimal
+            <summary>
+            Permet de remplacer la virgule/le point par le bon caractère décimal selon la
+            configuration de Windows.
+            </summary>
+        </member>
+        <member name="M:UtilStJ.CorrecteurDécimal.Corriger(System.Windows.Forms.TextBox)">
+            Méthode statique CorrecteurDécimal.Corriger
+            <summary>
+            Permet d'indiquer un TextBox à traiter.
+            </summary>
+            <param name="p_tb">
+            Le TextBox à corriger.
+            </param>
+        </member>
+        <member name="M:UtilStJ.CorrecteurDécimal.Corriger(System.Windows.Forms.TextBox,System.EventHandler)">
+            Méthode statique CorrecteurDécimal.Corriger
+            <summary>
+            Permet d'indiquer le TextBox à traiter et un EventHandler à appeler après la
+            correction lors d'un événement (si nécessaire).
+            </summary>
+            <param name="p_tb">
+            Le TextBox à corriger.
+            </param>
+            <param name="p_eh">
+            L'évévenement à appeler après la correction.
+            </param>
+        </member>
+        <member name="M:UtilStJ.Util.EnTexte``1(``0)">
+            <summary>
+            Renvoie le ToString(). Sert pour les types où on n'a pas défini une méthode EnTexte() plus spécifique.
+            </summary>
+            <typeparam name="T">le type de la valeur à convertir en texte.</typeparam>
+            <param name="p_valeur">la valeur dont on veut l'équivalent en texte.</param>
+            <returns></returns>
+        </member>
+        <member name="M:UtilStJ.Util.RemoveAtSansOrdre``1(System.Collections.Generic.List{``0},System.Int32)">
+            <summary>
+            Enlève un élément de la liste sans en préserver l'ordre (le dernier élément est
+            recopié à l'indice donné, puis la liste est raccourci d'un élément).
+            </summary>
+            <typeparam name="T">le type des éléments et de la donnée à enlever.</typeparam>
+            <param name="p_v">le vecteur (List) dont on doit retirer un élément.</param>
+            <param name="p_indice">l'indice de la valeur à retirer.</param>
+        </member>
+        <member name="M:UtilStJ.Util.RemoveAtEnOrdre``1(System.Collections.Generic.List{``0},System.Int32)">
+            <summary>
+            Enlève un élément de la liste en préservant l'ordre (tous les éléments après
+            l'indice donné sont décalés d'une position). Est parfaitement équivalente à
+            RemoveAt, donc fournie par souci de généralité seulement.
+            </summary>
+            <typeparam name="T">le type des éléments et de la donnée à enlever.</typeparam>
+            <param name="p_v">le vecteur (List) dont on doit retirer un élément.</param>
+            <param name="p_indice">l'indice de la valeur à retirer.</param>
+        </member>
+        <member name="M:UtilStJ.Util.RemoveSansOrdre``1(System.Collections.Generic.List{``0},``0)">
+            <summary>
+            Enlève un élément d'une liste non ordonnée. Une recherche linéaire est faite pour
+            trouver la valeur fournie, puis le dernier élément du vecteur sert à le remplacer et
+            la liste est raccourci d'un élément). Si la valeur n'est pas trouvé, la méthode
+            renvoie false.
+            </summary>
+            <typeparam name="T">le type des éléments et de la donnée à enlever.</typeparam>
+            <param name="p_v">le vecteur (List) dont on doit retirer un élément.</param>
+            <param name="p_valeur">la valeur à rechercher et retirer.</param>
+            <returns>true si la valeur a été trouvée (puis enlevée), false sinon.</returns>
+        </member>
+        <member name="M:UtilStJ.Util.RemoveEnOrdre``1(System.Collections.Generic.List{``0},``0)">
+            <summary>
+            Enlève un élément d'une liste en ordre. Une recherche binaire est faite (selon l'ordre
+            naturel) pour trouver la valeur fournie, puis les éléments sont décalés pour préserver
+            l'ordre. Si la valeur n'est pas trouvé, la méthode renvoie false.
+            </summary>
+            <typeparam name="T">le type des éléments et de la donnée à enlever.</typeparam>
+            <param name="p_v">le vecteur (List) dont on doit retirer un élément.</param>
+            <param name="p_valeur">la valeur à rechercher et retirer.</param>
+            <returns>true si la valeur a été trouvée (puis enlevée), false sinon.</returns>
+        </member>
+        <member name="M:UtilStJ.Util.NomMoisEnTexte(System.Int32)">
+            <summary>
+            Renvoie le nom du mois d'après son numéro (1-12), avec une majuscule initiale (donc en 
+            général, on devra appliquer ToLower()
+            </summary>
+            <param name="p_mois">le numéro du mois (1-12)</param>
+            <returns>le nom du mois en texte, avec une majuscule initiale.</returns>
+        </member>
+    </members>
+</doc>
