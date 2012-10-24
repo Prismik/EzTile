@@ -23,3 +23,16 @@ C:\Users\Francis\Documents\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Deb
 C:\Users\Francis\Documents\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\eztile.mainWindow.resources
 C:\Users\Francis\Documents\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\eztile.About.resources
 C:\Users\Francis\Documents\Visual Studio 2010\Projects\eztile\eztile\obj\x86\Debug\eztile.newTileSheet.resources
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\EzTile.exe
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\EzTile.pdb
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\bin\Debug\EzTile.exe
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\bin\Debug\EzTile.pdb
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\bin\Debug\UtilStJ.dll
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\bin\Debug\UtilStJ.xml
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\eztile.csprojResolveAssemblyReference.cache
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\eztile.About.resources
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\eztile.mainWindow.resources
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\eztile.newMap.resources
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\eztile.newTileSheet.resources
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\eztile.Properties.Resources.resources
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\eztile.csproj.GenerateResource.Cache

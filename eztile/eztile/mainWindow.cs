@@ -107,13 +107,18 @@ namespace eztile
             newTilesheetDialog.ShowDialog();
             if (newTilesheetDialog.DialogResult == System.Windows.Forms.DialogResult.OK)
             {
-                pictureBox1.Width = newTilesheetDialog.TileSheet.Width;
-                pictureBox1.Height = newTilesheetDialog.TileSheet.Height;
-                pictureBox1.Image = newTilesheetDialog.TileSheet;
-                _tileSheet = new TileSheet(newTilesheetDialog.FileName, newTilesheetDialog.TileSheet,
-                                            newTilesheetDialog.TileWidth, newTilesheetDialog.TileHeight);
-                g = pictureBox1.CreateGraphics();
-                g2 = pictureBox2.CreateGraphics();
+                if (newTilesheetDialog.TileSheet == null)
+                    MB.AvertirCritique("Could not find the specified image.");
+                else
+                {
+                    pictureBox1.Width = newTilesheetDialog.TileSheet.Width;
+                    pictureBox1.Height = newTilesheetDialog.TileSheet.Height;
+                    pictureBox1.Image = newTilesheetDialog.TileSheet;
+                    _tileSheet = new TileSheet(newTilesheetDialog.FileName, newTilesheetDialog.TileSheet,
+                                                newTilesheetDialog.TileWidth, newTilesheetDialog.TileHeight);
+                    g = pictureBox1.CreateGraphics();
+                    g2 = pictureBox2.CreateGraphics();
+                }
             }
         }
 
@@ -137,10 +142,11 @@ namespace eztile
                 }
             }*/
         }
-
+        int eX, eY;
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
-
+            eX = e.X;
+            eY = e.Y;
             pictureBox1.Refresh();
             if (pictureBox1.Image != null)
             {
@@ -156,14 +162,16 @@ namespace eztile
                 using (Pen myPen = new Pen(Color.Black, 1))
                 {
                     Rectangle rectangle = new Rectangle(x1, y1, x2 - x1, y2 - y1);
-                    SolidBrush solidBrush = new SolidBrush(Color.FromArgb(100, 255, 0, 0 ));
-                    g.FillRectangle(solidBrush, rectangle );
+                    if (_selectedTile == null)
+                    {
+                        SolidBrush solidBrush = new SolidBrush(Color.FromArgb(100, 255, 0, 0));
+                        g.FillRectangle(solidBrush, rectangle);
+                    }
                     //g.DrawRectangle(myPen, rectangle);
                     _selectedTile = _tileSheet.Image.Clone(rectangle, _tileSheet.Image.PixelFormat);
                 }
             }
         }
-
         private void pictureBox2_MouseClick(object sender, MouseEventArgs e)
         {
             if (_selectedTile != null)
@@ -171,6 +179,21 @@ namespace eztile
                 int x1 = (e.X - e.X % _tileSheet.TileWidth);
                 int y1 = (e.Y - e.Y % _tileSheet.TileHeight);
                 g2.DrawImage(_selectedTile, x1, y1);
+            }
+        }
+
+        private void pictureBox1_Paint(object sender, PaintEventArgs e)
+        {
+            if (_selectedTile != null)
+            {
+                int x1, y1, x2, y2;
+                x1 = (eX - eX % _tileSheet.TileWidth);
+                x2 = x1 + _tileSheet.TileWidth;
+                y1 = (eY - eY % _tileSheet.TileHeight);
+                y2 = y1 + _tileSheet.TileHeight;
+                Rectangle rectangle = new Rectangle(x1, y1, x2 - x1, y2 - y1);
+                SolidBrush solidBrush = new SolidBrush(Color.FromArgb(100, 255, 0, 0));
+                e.Graphics.FillRectangle(solidBrush, rectangle);
             }
         }
     }

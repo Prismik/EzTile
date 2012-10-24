@@ -82,6 +82,7 @@
     </Compile>
     <Compile Include="Tile.cs" />
     <Compile Include="TileSheet.cs" />
+    <Compile Include="Utilities.cs" />
     <EmbeddedResource Include="About.resx">
       <DependentUpon>About.cs</DependentUpon>
     </EmbeddedResource>

@@ -63,6 +63,8 @@ namespace eztile
                     if ((_tileSheet = Image.FromFile(browseDialog.FileName)) != null)
                     {
                         this.imageLocation.Text= browseDialog.FileName;
+                        _tileSheet = Utilities.ResizeImage(_tileSheet, _tileSheet.Width - (_tileSheet.Width % _tileWidth),
+                                                         _tileSheet.Height - (_tileSheet.Height % _tileHeight));
                     }
                 }
                 catch (Exception ex)
