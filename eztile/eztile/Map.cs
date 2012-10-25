@@ -37,9 +37,14 @@ namespace eztile
             {
                 array += '\n';
                 for (int j = 0; j != _width; j++)
-                    array += _map[i][j].TileID.ToString();
+                    array += _map[i][j].TileID.ToString() + ',';
             }
             return array;
+        }
+
+        internal Tile GetTile(int x, int y)
+        {
+            return _map[y][x];
         }
     }
 }

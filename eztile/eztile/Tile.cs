@@ -11,7 +11,7 @@ namespace eztile
         public int TileID
         {
             get { return _tileId; }
-            private set { _tileId = value; }
+            set { _tileId = value; }
         }
         int _width;
         int _height;

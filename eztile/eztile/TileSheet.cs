@@ -5,8 +5,15 @@ using System.Text;
 using System.Drawing;
 namespace eztile
 {
-    class TileSheet
+    internal class TileSheet
     {
+        string _imageName;
+        public string ImageName
+        {
+            get { return _imageName; }
+            set { _imageName = value; }
+        }
+        
         string _name;
         public string Name
         {
@@ -37,9 +44,10 @@ namespace eztile
 
         //*** END OF GETTERS , SETTERS
 
-        public TileSheet(string name, Image image, int width, int height)
+        public TileSheet(string name, Image image, string imageName, int width, int height)
         {
             _name = name;
+            _imageName = imageName;
             _image = new Bitmap(image);
             _tileWidth = width;
             _tileHeight = height;

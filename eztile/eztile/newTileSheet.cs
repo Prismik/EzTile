@@ -12,6 +12,13 @@ namespace eztile
 {
     public partial class newTileSheet : DialogueOkAnnuler
     {
+        string _imageName;
+        public string ImageName
+        {
+            get { return _imageName; }
+            private set { _imageName = value; }
+        }
+
         Image _tileSheet = null;
         public Image TileSheet
         {
@@ -63,6 +70,8 @@ namespace eztile
                     if ((_tileSheet = Image.FromFile(browseDialog.FileName)) != null)
                     {
                         this.imageLocation.Text= browseDialog.FileName;
+                        string[] words= browseDialog.FileName.Split('\\');
+                        _imageName = words[words.Length - 1];
                         _tileSheet = Utilities.ResizeImage(_tileSheet, _tileSheet.Width - (_tileSheet.Width % _tileWidth),
                                                          _tileSheet.Height - (_tileSheet.Height % _tileHeight));
                     }
@@ -77,11 +86,11 @@ namespace eztile
         private void m_boutonOK_Click(object sender, EventArgs e)
         {
             // Validate
-            MB.Avertir(_tileHeight.ToString());
         }
 
         private void tilesheetName_TextChanged(object sender, EventArgs e)
         {
+            _name = this.tilesheetName.Text;
             if (this.imageLocation.Text != "" && this.tilesheetName.Text != "")
                 this.BoutonOK.Enabled = true;
             else

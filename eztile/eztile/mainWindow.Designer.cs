@@ -42,7 +42,7 @@ namespace eztile
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.quitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.newToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.newTileSet = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -165,18 +165,19 @@ namespace eztile
             // mapToolStripMenuItem
             // 
             this.mapToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.newToolStripMenuItem1});
+            this.newTileSet});
             this.mapToolStripMenuItem.Name = "mapToolStripMenuItem";
             this.mapToolStripMenuItem.Size = new System.Drawing.Size(43, 20);
             this.mapToolStripMenuItem.Text = "Map";
             // 
-            // newToolStripMenuItem1
+            // newTileSet
             // 
-            this.newToolStripMenuItem1.Image = global::eztile.Properties.Resources.new_16x16;
-            this.newToolStripMenuItem1.Name = "newToolStripMenuItem1";
-            this.newToolStripMenuItem1.Size = new System.Drawing.Size(132, 22);
-            this.newToolStripMenuItem1.Text = "New tileset";
-            this.newToolStripMenuItem1.Click += new System.EventHandler(this.newToolStripMenuItem1_Click);
+            this.newTileSet.Enabled = false;
+            this.newTileSet.Image = global::eztile.Properties.Resources.new_16x16;
+            this.newTileSet.Name = "newTileSet";
+            this.newTileSet.Size = new System.Drawing.Size(152, 22);
+            this.newTileSet.Text = "New tileset";
+            this.newTileSet.Click += new System.EventHandler(this.newToolStripMenuItem1_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -233,9 +234,6 @@ namespace eztile
             // 
             // pictureBox2
             // 
-            this.pictureBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox2.BackColor = System.Drawing.SystemColors.InactiveCaptionText;
             this.pictureBox2.Location = new System.Drawing.Point(3, 5);
             this.pictureBox2.Name = "pictureBox2";
@@ -286,7 +284,7 @@ namespace eztile
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private ToolStripMenuItem mapToolStripMenuItem;
-        private ToolStripMenuItem newToolStripMenuItem1;
+        private ToolStripMenuItem newTileSet;
         private Panel panel1;
         private PictureBox pictureBox1;
         private Panel panel2;

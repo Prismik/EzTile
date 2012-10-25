@@ -13,10 +13,9 @@ namespace eztile
 {
     public partial class mainWindow : Form
     {
-        List<Map> openedMaps = new List<Map>();
-        TileSheet _tileSheet = null;
-        Graphics g = null;
-        Graphics g2 = null;
+        MapDocument _mapDocument = null;
+        Graphics _g = null;
+        Graphics _g2 = null;
         Bitmap _selectedTile = null;
         public mainWindow()
         {
@@ -66,31 +65,48 @@ namespace eztile
             mapDialog.ShowDialog();
             if (mapDialog.DialogResult == System.Windows.Forms.DialogResult.OK)
             {
-                openedMaps.Add(new Map(mapDialog.MapWidth, mapDialog.MapHeight,
-                                        mapDialog.TileWidth, mapDialog.TileHeight));
+                _mapDocument = new MapDocument();
+               _mapDocument.Map = new Map(mapDialog.MapWidth, mapDialog.MapHeight,
+                                        mapDialog.TileWidth, mapDialog.TileHeight);
+
                 pictureBox2.BackColor = Color.LightSkyBlue;
                 pictureBox2.Enabled = true;
                 pictureBox2.Size = new Size(mapDialog.MapWidth * mapDialog.TileWidth, // WIDTH
                                             mapDialog.MapHeight * mapDialog.TileHeight); // HEIGHT
+                this.newTileSet.Enabled = true;
             }
         }
 
         private void SaveMap()
         {
-            SaveFileDialog saveDialog = new SaveFileDialog();
-            saveDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
-            saveDialog.Title = "Save a map file";
-            if (saveDialog.ShowDialog() == DialogResult.OK)
+            if (_mapDocument.FileName == null)
             {
-                if (saveDialog.FileName != "")
+                SaveFileDialog saveDialog = new SaveFileDialog();
+                saveDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+                saveDialog.Title = "Save a map file";
+                if (saveDialog.ShowDialog() == DialogResult.OK)
                 {
-                    // Saves the Image via a FileStream created by the OpenFile method.
-                    System.IO.FileStream fs =
-                     (System.IO.FileStream)saveDialog.OpenFile();
-                    string testString = openedMaps[0].GetMapArray();
-                    fs.Write(UnicodeEncoding.Unicode.GetBytes(testString),
+                    if (saveDialog.FileName != "")
+                    {
+                        _mapDocument.FileName = saveDialog.FileName;
+                        // Saves the Image via a FileStream created by the OpenFile method.
+                        System.IO.FileStream fs =
+                            (System.IO.FileStream)saveDialog.OpenFile();
+                        string testString = _mapDocument.Map.GetMapArray();
+                        fs.Write(UnicodeEncoding.Unicode.GetBytes(testString),
+                                    0, UnicodeEncoding.Unicode.GetByteCount(testString));
+                        fs.Close();
+                    }
+                }
+            }
+            else
+            {
+                using (var stream = File.OpenWrite(_mapDocument.FileName))
+                {
+                    string testString = _mapDocument.Map.GetMapArray();
+                    stream.Write(UnicodeEncoding.Unicode.GetBytes(testString),
                                 0, UnicodeEncoding.Unicode.GetByteCount(testString));
-                    fs.Close();
+                    stream.Close();
                 }
             }
         }
@@ -114,10 +130,10 @@ namespace eztile
                     pictureBox1.Width = newTilesheetDialog.TileSheet.Width;
                     pictureBox1.Height = newTilesheetDialog.TileSheet.Height;
                     pictureBox1.Image = newTilesheetDialog.TileSheet;
-                    _tileSheet = new TileSheet(newTilesheetDialog.FileName, newTilesheetDialog.TileSheet,
-                                                newTilesheetDialog.TileWidth, newTilesheetDialog.TileHeight);
-                    g = pictureBox1.CreateGraphics();
-                    g2 = pictureBox2.CreateGraphics();
+                    _mapDocument.TileSheet = new TileSheet(newTilesheetDialog.FileName, newTilesheetDialog.TileSheet,
+                                                newTilesheetDialog.ImageName, newTilesheetDialog.TileWidth, newTilesheetDialog.TileHeight);
+                    _g = pictureBox1.CreateGraphics();
+                    _g2 = pictureBox2.CreateGraphics();
                 }
             }
         }
@@ -130,14 +146,14 @@ namespace eztile
                     return;
 
                 int x1, x2, y1, y2;
-                x1 = (e.X / _tileSheet.TileWidth) * e.X;
-                x2 = x1 + _tileSheet.TileWidth;
-                y1 = (e.Y / _tileSheet.TileHeight) * e.Y;
-                y2 = y1 + _tileSheet.TileHeight;
+                x1 = (e.X / _mapDocument.TileSheet.TileWidth) * e.X;
+                x2 = x1 + _mapDocument.TileSheet.TileWidth;
+                y1 = (e.Y / _mapDocument.TileSheet.TileHeight) * e.Y;
+                y2 = y1 + _mapDocument.TileSheet.TileHeight;
                // MB.Avertir("{" + x1.ToString() + "," + y1.ToString() + "} - {" + x2.ToString() + "," + y2.ToString() + "}");
                 using (Pen myPen = new Pen(Color.Black, 1))
                 {
-                    g.DrawRectangle(myPen, new Rectangle(x1, y1, x2, y2));
+                    _g.DrawRectangle(myPen, new Rectangle(x1, y1, x2, y2));
                     
                 }
             }*/
@@ -154,10 +170,10 @@ namespace eztile
                     return;
 
                 int x1, x2, y1, y2;
-                x1 = (e.X - e.X % _tileSheet.TileWidth);
-                x2 = x1 + _tileSheet.TileWidth;
-                y1 = (e.Y - e.Y % _tileSheet.TileHeight);
-                y2 = y1 + _tileSheet.TileHeight;
+                x1 = (e.X - e.X % _mapDocument.TileSheet.TileWidth);
+                x2 = x1 + _mapDocument.TileSheet.TileWidth;
+                y1 = (e.Y - e.Y % _mapDocument.TileSheet.TileHeight);
+                y2 = y1 + _mapDocument.TileSheet.TileHeight;
                 //MB.Avertir("{" + x1.ToString() + "," + y1.ToString() + "} - {" + x2.ToString() + "," + y2.ToString() + "}");
                 using (Pen myPen = new Pen(Color.Black, 1))
                 {
@@ -165,10 +181,10 @@ namespace eztile
                     if (_selectedTile == null)
                     {
                         SolidBrush solidBrush = new SolidBrush(Color.FromArgb(100, 255, 0, 0));
-                        g.FillRectangle(solidBrush, rectangle);
+                        _g.FillRectangle(solidBrush, rectangle);
                     }
-                    //g.DrawRectangle(myPen, rectangle);
-                    _selectedTile = _tileSheet.Image.Clone(rectangle, _tileSheet.Image.PixelFormat);
+                    //_g.DrawRectangle(myPen, rectangle);
+                    _selectedTile = _mapDocument.TileSheet.Image.Clone(rectangle, _mapDocument.TileSheet.Image.PixelFormat);
                 }
             }
         }
@@ -176,9 +192,13 @@ namespace eztile
         {
             if (_selectedTile != null)
             {
-                int x1 = (e.X - e.X % _tileSheet.TileWidth);
-                int y1 = (e.Y - e.Y % _tileSheet.TileHeight);
-                g2.DrawImage(_selectedTile, x1, y1);
+                int x1 = (e.X - e.X % _mapDocument.TileSheet.TileWidth);
+                int y1 = (e.Y - e.Y % _mapDocument.TileSheet.TileHeight);
+                _g2.DrawImage(_selectedTile, x1, y1);
+                //MB.Avertir(x1.ToString() + "-" + y1.ToString());
+                _mapDocument.Map.GetTile(x1 / _mapDocument.TileSheet.TileWidth, y1 
+                    / _mapDocument.TileSheet.TileHeight).TileID = x1 / _mapDocument.TileSheet.TileWidth +
+                    _mapDocument.TileSheet.Image.Width / (y1 == 0 ? 1: y1);
             }
         }
 
@@ -187,10 +207,10 @@ namespace eztile
             if (_selectedTile != null)
             {
                 int x1, y1, x2, y2;
-                x1 = (eX - eX % _tileSheet.TileWidth);
-                x2 = x1 + _tileSheet.TileWidth;
-                y1 = (eY - eY % _tileSheet.TileHeight);
-                y2 = y1 + _tileSheet.TileHeight;
+                x1 = (eX - eX % _mapDocument.TileSheet.TileWidth);
+                x2 = x1 + _mapDocument.TileSheet.TileWidth;
+                y1 = (eY - eY % _mapDocument.TileSheet.TileHeight);
+                y2 = y1 + _mapDocument.TileSheet.TileHeight;
                 Rectangle rectangle = new Rectangle(x1, y1, x2 - x1, y2 - y1);
                 SolidBrush solidBrush = new SolidBrush(Color.FromArgb(100, 255, 0, 0));
                 e.Graphics.FillRectangle(solidBrush, rectangle);
