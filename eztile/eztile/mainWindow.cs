@@ -13,10 +13,14 @@ namespace eztile
 {
     public partial class mainWindow : Form
     {
-        MapDocument _mapDocument = null;
+        MapDocument _mapDocument;
         Graphics _g = null;
         Graphics _g2 = null;
         Bitmap _selectedTile = null;
+        int _selectedTileId = -1;
+        int _activeLayer = 0;
+        List<CoordAndImage> _mapImage = new List<CoordAndImage>();
+
         public mainWindow()
         {
             InitializeComponent();
@@ -54,7 +58,17 @@ namespace eztile
             SaveMap();
         }
 
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
         private void toolOpen_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void OpenMap()
         {
 
         }
@@ -65,8 +79,7 @@ namespace eztile
             mapDialog.ShowDialog();
             if (mapDialog.DialogResult == System.Windows.Forms.DialogResult.OK)
             {
-                _mapDocument = new MapDocument();
-               _mapDocument.Map = new Map(mapDialog.MapWidth, mapDialog.MapHeight,
+                _mapDocument = new MapDocument(mapDialog.MapWidth, mapDialog.MapHeight,
                                         mapDialog.TileWidth, mapDialog.TileHeight);
 
                 pictureBox2.BackColor = Color.LightSkyBlue;
@@ -92,9 +105,12 @@ namespace eztile
                         // Saves the Image via a FileStream created by the OpenFile method.
                         System.IO.FileStream fs =
                             (System.IO.FileStream)saveDialog.OpenFile();
-                        string testString = _mapDocument.Map.GetMapArray();
-                        fs.Write(UnicodeEncoding.Unicode.GetBytes(testString),
-                                    0, UnicodeEncoding.Unicode.GetByteCount(testString));
+                        foreach (Map map in _mapDocument.GetLayers())
+                        {
+                            string testString = map.GetMapArray();
+                            fs.Write(UnicodeEncoding.Unicode.GetBytes(testString),
+                                        0, UnicodeEncoding.Unicode.GetByteCount(testString));
+                        }
                         fs.Close();
                     }
                 }
@@ -103,9 +119,12 @@ namespace eztile
             {
                 using (var stream = File.OpenWrite(_mapDocument.FileName))
                 {
-                    string testString = _mapDocument.Map.GetMapArray();
-                    stream.Write(UnicodeEncoding.Unicode.GetBytes(testString),
-                                0, UnicodeEncoding.Unicode.GetByteCount(testString));
+                    foreach (Map map in _mapDocument.GetLayers())
+                    {
+                        string testString = map.GetMapArray();
+                        stream.Write(UnicodeEncoding.Unicode.GetBytes(testString),
+                                    0, UnicodeEncoding.Unicode.GetByteCount(testString));
+                    }
                     stream.Close();
                 }
             }
@@ -158,11 +177,12 @@ namespace eztile
                 }
             }*/
         }
-        int eX, eY;
+
+        int pictureBox1eX, pictureBox1eY; // For the redraw of the selected tile in pictureBox1
         private void pictureBox1_MouseClick(object sender, MouseEventArgs e)
         {
-            eX = e.X;
-            eY = e.Y;
+            pictureBox1eX = e.X;
+            pictureBox1eY = e.Y;
             pictureBox1.Refresh();
             if (pictureBox1.Image != null)
             {
@@ -185,20 +205,26 @@ namespace eztile
                     }
                     //_g.DrawRectangle(myPen, rectangle);
                     _selectedTile = _mapDocument.TileSheet.Image.Clone(rectangle, _mapDocument.TileSheet.Image.PixelFormat);
+                    _selectedTileId = y1 / _mapDocument.TileSheet.TileHeight * (_mapDocument.TileSheet.Image.Width / _mapDocument.TileSheet.TileWidth)
+                        + x2 / _mapDocument.TileSheet.TileWidth;
                 }
             }
         }
+
         private void pictureBox2_MouseClick(object sender, MouseEventArgs e)
         {
             if (_selectedTile != null)
             {
                 int x1 = (e.X - e.X % _mapDocument.TileSheet.TileWidth);
                 int y1 = (e.Y - e.Y % _mapDocument.TileSheet.TileHeight);
+                using (var br = new SolidBrush(Color.FromArgb(0, 255, 255, 255)))
+                    _g2.FillRectangle(br, x1, y1, _selectedTile.Width, _selectedTile.Height);
+
                 _g2.DrawImage(_selectedTile, x1, y1);
+                //_mapImage.Add(new CoordAndImage(_selectedTile, x1, y1)); HERE FOR REDRAW ISSUE
                 //MB.Avertir(x1.ToString() + "-" + y1.ToString());
-                _mapDocument.Map.GetTile(x1 / _mapDocument.TileSheet.TileWidth, y1 
-                    / _mapDocument.TileSheet.TileHeight).TileID = x1 / _mapDocument.TileSheet.TileWidth +
-                    _mapDocument.TileSheet.Image.Width / (y1 == 0 ? 1: y1);
+                _mapDocument.GetLayers()[_activeLayer].GetTile(x1 / _mapDocument.TileSheet.TileWidth, y1
+                    / _mapDocument.TileSheet.TileHeight).TileID = _selectedTileId;
             }
         }
 
@@ -207,14 +233,47 @@ namespace eztile
             if (_selectedTile != null)
             {
                 int x1, y1, x2, y2;
-                x1 = (eX - eX % _mapDocument.TileSheet.TileWidth);
+                x1 = (pictureBox1eX - pictureBox1eX % _mapDocument.TileSheet.TileWidth);
                 x2 = x1 + _mapDocument.TileSheet.TileWidth;
-                y1 = (eY - eY % _mapDocument.TileSheet.TileHeight);
+                y1 = (pictureBox1eY - pictureBox1eY % _mapDocument.TileSheet.TileHeight);
                 y2 = y1 + _mapDocument.TileSheet.TileHeight;
                 Rectangle rectangle = new Rectangle(x1, y1, x2 - x1, y2 - y1);
                 SolidBrush solidBrush = new SolidBrush(Color.FromArgb(100, 255, 0, 0));
                 e.Graphics.FillRectangle(solidBrush, rectangle);
             }
+        }
+
+        private void pictureBox2_Paint(object sender, PaintEventArgs e)
+        {
+            //foreach (CoordAndImage img in _mapImage)
+             //   _g2.DrawImage(img.Image, img.X, img.Y);
+        }
+
+    }
+
+    public class CoordAndImage
+    {
+        private Bitmap _img;
+        public Bitmap Image
+        {
+            get { return _img; }
+        }
+        private int _x;
+        public int X
+        {
+            get { return _x; }
+        }
+        private int _y;
+        public int Y
+        {
+            get { return _y; }
+        }
+
+        public CoordAndImage(Bitmap img, int x, int y)
+        {
+            _img = img;
+            _x = x;
+            _y = y;
         }
     }
 }

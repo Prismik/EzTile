@@ -14,12 +14,28 @@ namespace eztile
             set { _tileId = value; }
         }
         int _width;
+        public int Width
+        {
+            get { return _width; }
+             set { _width = value; }
+        }
+
         int _height;
+        public int Height
+        {
+            get { return _height; }
+            set { _height = value; }
+        }
         public Tile(int x, int y)
         {
             _tileId = 0;
             _width = x;
             _height = y;
+        }
+
+        public Tile()
+        {
+
         }
     }
 }
