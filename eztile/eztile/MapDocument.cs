@@ -26,9 +26,9 @@ namespace eztile
             return _layers;
         }
 
-        public int AddLayer()
+        public int AddLayer(string name)
         {
-            _layers.Add(new Map(_mapWidth, _mapHeight, _tileWidth, _tileHeight, _layers.Count));
+            _layers.Add(new Map(_mapWidth, _mapHeight, _tileWidth, _tileHeight, name));
             return _layers.Count;
         }
 
@@ -44,13 +44,6 @@ namespace eztile
             catch (Exception e)
             {
                 MB.Avertir(e.ToString());
-            }
-
-            int index= 1;
-            foreach (Map map in _layers)
-            {
-                map.ZIndex = index;
-                index++;
             }
 
             return _layers.Count;
@@ -76,7 +69,7 @@ namespace eztile
         {
             _tileSheet = null;
             _layers= new List<Map>();
-            _layers.Add(new Map(mapWidth, mapHeight, tileWidth, tileHeight, 1));
+            //_layers.Add(new Map(mapWidth, mapHeight, tileWidth, tileHeight, 1));
             _fileName = null;
             _mapWidth = mapWidth;
             _mapHeight = mapHeight;

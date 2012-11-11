@@ -18,8 +18,7 @@ namespace eztile
         Graphics _g2 = null;
         Bitmap _selectedTile = null;
         int _selectedTileId = -1;
-        int _activeLayer = 0;
-        List<CoordAndImage> _mapImage = new List<CoordAndImage>();
+        Bitmap _imageCopy;
 
         public mainWindow()
         {
@@ -83,10 +82,11 @@ namespace eztile
                                         mapDialog.TileWidth, mapDialog.TileHeight);
 
                 pictureBox2.BackColor = Color.LightSkyBlue;
-                pictureBox2.Enabled = true;
+                button1.Enabled = true;
+                button2.Enabled = true;
                 pictureBox2.Size = new Size(mapDialog.MapWidth * mapDialog.TileWidth, // WIDTH
                                             mapDialog.MapHeight * mapDialog.TileHeight); // HEIGHT
-                this.newTileSet.Enabled = true;
+                newTileSet.Enabled = true;
             }
         }
 
@@ -158,24 +158,8 @@ namespace eztile
         }
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
-        {/*
-            if (pictureBox1.Image != null)
-            {
-                if (e.X < 0 || e.Y < 0)
-                    return;
-
-                int x1, x2, y1, y2;
-                x1 = (e.X / _mapDocument.TileSheet.TileWidth) * e.X;
-                x2 = x1 + _mapDocument.TileSheet.TileWidth;
-                y1 = (e.Y / _mapDocument.TileSheet.TileHeight) * e.Y;
-                y2 = y1 + _mapDocument.TileSheet.TileHeight;
-               // MB.Avertir("{" + x1.ToString() + "," + y1.ToString() + "} - {" + x2.ToString() + "," + y2.ToString() + "}");
-                using (Pen myPen = new Pen(Color.Black, 1))
-                {
-                    _g.DrawRectangle(myPen, new Rectangle(x1, y1, x2, y2));
-                    
-                }
-            }*/
+        {
+            // TODO, SAME THING AS ONCLICK BUT REFRESHES ONMOVE
         }
 
         int pictureBox1eX, pictureBox1eY; // For the redraw of the selected tile in pictureBox1
@@ -217,13 +201,12 @@ namespace eztile
             {
                 int x1 = (e.X - e.X % _mapDocument.TileSheet.TileWidth);
                 int y1 = (e.Y - e.Y % _mapDocument.TileSheet.TileHeight);
-                using (var br = new SolidBrush(Color.FromArgb(0, 255, 255, 255)))
-                    _g2.FillRectangle(br, x1, y1, _selectedTile.Width, _selectedTile.Height);
 
                 _g2.DrawImage(_selectedTile, x1, y1);
+                //_imageCopy = new Bitmap(pictureBox2.Image);
                 //_mapImage.Add(new CoordAndImage(_selectedTile, x1, y1)); HERE FOR REDRAW ISSUE
                 //MB.Avertir(x1.ToString() + "-" + y1.ToString());
-                _mapDocument.GetLayers()[_activeLayer].GetTile(x1 / _mapDocument.TileSheet.TileWidth, y1
+                _mapDocument.GetLayers()[listBox1.SelectedIndex].GetTile(x1 / _mapDocument.TileSheet.TileWidth, y1
                     / _mapDocument.TileSheet.TileHeight).TileID = _selectedTileId;
             }
         }
@@ -245,35 +228,41 @@ namespace eztile
 
         private void pictureBox2_Paint(object sender, PaintEventArgs e)
         {
-            //foreach (CoordAndImage img in _mapImage)
-             //   _g2.DrawImage(img.Image, img.X, img.Y);
+
+            Rectangle rectangle = new Rectangle(0, 0, 32, 32);
+            SolidBrush solidBrush = new SolidBrush(Color.FromArgb(100, 255, 0, 0));
+            e.Graphics.FillRectangle(solidBrush, rectangle);
+            e.Graphics.DrawImageUnscaled(_selectedTile, 0, 0);
         }
 
-    }
+        private void AddLayer_Click(object sender, EventArgs e)
+        {
+            Prompt promptLayerName = new Prompt("New layer name: ", "New layer");
+            promptLayerName.ShowDialog();
+            if (promptLayerName.DialogResult == DialogResult.OK)
+            {
+                if (!pictureBox2.Enabled)
+                    pictureBox2.Enabled = true;
 
-    public class CoordAndImage
-    {
-        private Bitmap _img;
-        public Bitmap Image
-        {
-            get { return _img; }
-        }
-        private int _x;
-        public int X
-        {
-            get { return _x; }
-        }
-        private int _y;
-        public int Y
-        {
-            get { return _y; }
+                button2.Enabled = true;
+                _mapDocument.AddLayer(promptLayerName.PromptValue);
+                listBox1.DataSource = null;
+                listBox1.DataSource = _mapDocument.GetLayers();
+                //listBox1.Items.Add(_mapDocument.GetLayers()[_mapDocument.GetLayers().Count-1]);
+            }
         }
 
-        public CoordAndImage(Bitmap img, int x, int y)
+        private void RemoveLayer_Click(object sender, EventArgs e)
         {
-            _img = img;
-            _x = x;
-            _y = y;
+            _mapDocument.RemoveLayer(listBox1.SelectedIndex);
+            listBox1.DataSource = null;
+            listBox1.DataSource = _mapDocument.GetLayers();
+            //listBox1.Items.RemoveAt(listBox1.SelectedIndex);
+            if (_mapDocument.GetLayers().Count == 0)
+            {
+                pictureBox2.Enabled = false;
+                button2.Enabled = false;
+            }
         }
     }
 }

@@ -45,6 +45,7 @@ namespace eztile
             _mapHeight= (int)this.mapHeight.Value;
             _tileWidth= (int)this.tileWidth.Value;
             _tileHeight= (int)this.tileHeight.Value;
+            this.BoutonAnnuler.Text = "Cancel";
         }
 
         private void mapWidth_ValueChanged(object sender, EventArgs e)

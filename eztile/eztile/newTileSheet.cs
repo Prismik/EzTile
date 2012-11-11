@@ -51,6 +51,7 @@ namespace eztile
         {
             InitializeComponent();
             this.BoutonOK.Enabled = false;
+            this.BoutonAnnuler.Text = "Cancel";
             _tileWidth = (int)this.tileWidth.Value;
             _tileHeight = (int)this.tileHeight.Value;
         }

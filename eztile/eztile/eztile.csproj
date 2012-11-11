@@ -76,10 +76,13 @@
       <DependentUpon>newTileSheet.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SizeablePanel.cs">
-      <SubType>Component</SubType>
+    <Compile Include="Prompt.cs">
+      <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Prompt.Designer.cs">
+      <DependentUpon>Prompt.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="TileSheet.cs" />
     <Compile Include="Utilities.cs" />
@@ -94,6 +97,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="newTileSheet.resx">
       <DependentUpon>newTileSheet.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Prompt.resx">
+      <DependentUpon>Prompt.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

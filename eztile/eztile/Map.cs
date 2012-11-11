@@ -8,11 +8,11 @@ namespace eztile
 {
     internal class Map
     {
-        int _zIndex;
-        public int ZIndex
+        string _name;
+        public string Name
         {
-            get { return _zIndex; }
-            set { _zIndex = value; }
+            get { return _name; }
+            set { _name = value; }
         }
 
         int _width;
@@ -30,9 +30,9 @@ namespace eztile
         }
 
         Tile[][] _map;
-        public Map(int x, int y, int tileX, int tileY, int zIndex)
+        public Map(int x, int y, int tileX, int tileY, string name)
         {
-            _zIndex = zIndex;
+            _name = name;
             _width = x;
             _height = y;
             _map = new Tile[_height][];
@@ -46,10 +46,10 @@ namespace eztile
 
         public Map(Map mapToCopy)
         {
-            _zIndex = mapToCopy.ZIndex;
             _width = mapToCopy.Width;
             _height = mapToCopy.Height;
             _map = mapToCopy.GetMap();
+            _name = mapToCopy.Name;
         }
 
         internal string GetMapArray()
@@ -72,6 +72,11 @@ namespace eztile
         internal Tile GetTile(int x, int y)
         {
             return _map[y][x];
+        }
+
+        public override string ToString()
+        {
+            return _name;
         }
     }
 }

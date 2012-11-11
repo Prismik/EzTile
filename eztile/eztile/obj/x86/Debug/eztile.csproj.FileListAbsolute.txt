@@ -36,3 +36,4 @@ C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\eztile.newT
 C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\eztile.Properties.Resources.resources
 C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\eztile.csproj.GenerateResource.Cache
 C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\eztile.mainWindow.resources
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\eztile.Prompt.resources
