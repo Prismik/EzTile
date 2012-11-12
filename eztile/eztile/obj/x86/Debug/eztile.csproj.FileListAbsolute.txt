@@ -37,3 +37,6 @@ C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\eztile.Prop
 C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\eztile.csproj.GenerateResource.Cache
 C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\eztile.mainWindow.resources
 C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\obj\x86\Debug\eztile.Prompt.resources
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\bin\Debug\EzTile.exe.config
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\bin\Debug\KRBTabControl.dll
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\eztile\bin\Debug\KRBTabControl.pdb

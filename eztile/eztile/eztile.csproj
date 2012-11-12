@@ -11,7 +11,8 @@
     <RootNamespace>eztile</RootNamespace>
     <AssemblyName>EzTile</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -111,6 +112,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -121,7 +123,12 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\KRBTabControl\KRBTabControl.csproj">
+      <Project>{04506D1C-0E7E-4C9B-A07F-2EA358531AE9}</Project>
+      <Name>KRBTabControl</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <None Include="Resources\about_16x16.png" />
   </ItemGroup>
@@ -139,6 +146,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\saveas_16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\tab_16x16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

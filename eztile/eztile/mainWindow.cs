@@ -13,7 +13,7 @@ namespace eztile
 {
     public partial class mainWindow : Form
     {
-        MapDocument _mapDocument;
+        List<MapDocument> _mapDocuments;
         Graphics _g = null;
         Graphics _g2 = null;
         Bitmap _selectedTile = null;
@@ -23,8 +23,24 @@ namespace eztile
         public mainWindow()
         {
             InitializeComponent();
-            pictureBox2.Enabled = false;
+            _mapDocuments = new List<MapDocument>();
+            //pictureBox2.Enabled = false;
             pictureBox1.MouseMove += new MouseEventHandler(pictureBox1_MouseMove);
+            krbTabControl1.TabIndexChanged += new EventHandler(tabChange);
+            //krbTabControl1. += new EventHandler(tabClose);
+        }
+
+        private void tabChange(object sender, EventArgs e)
+        {
+            listBox1.DataSource = null;
+            listBox1.DataSource = _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers();
+            _selectedTile = null;
+        }
+
+        private void tabClose(object sender, EventArgs e)
+        {
+            listBox1.DataSource = null;
+            listBox1.DataSource = _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers();
         }
 
         private void mainWindow_Load(object sender, EventArgs e)
@@ -78,21 +94,48 @@ namespace eztile
             mapDialog.ShowDialog();
             if (mapDialog.DialogResult == System.Windows.Forms.DialogResult.OK)
             {
-                _mapDocument = new MapDocument(mapDialog.MapWidth, mapDialog.MapHeight,
-                                        mapDialog.TileWidth, mapDialog.TileHeight);
+                _mapDocuments.Add(new MapDocument(mapDialog.MapWidth, mapDialog.MapHeight,
+                                        mapDialog.TileWidth, mapDialog.TileHeight));
 
-                pictureBox2.BackColor = Color.LightSkyBlue;
                 button1.Enabled = true;
                 button2.Enabled = true;
-                pictureBox2.Size = new Size(mapDialog.MapWidth * mapDialog.TileWidth, // WIDTH
-                                            mapDialog.MapHeight * mapDialog.TileHeight); // HEIGHT
                 newTileSet.Enabled = true;
+
+                // CREATE THE KRB TAB
+                KRBTabControl.TabPageEx newTabPage = new KRBTabControl.TabPageEx();
+                newTabPage.Text = "Untitled";
+                newTabPage.ImageIndex = 2;
+                krbTabControl1.TabPages.Add(newTabPage);
+
+                PictureBox newPictureBox = new PictureBox();
+                newPictureBox.Size = new Size(mapDialog.MapWidth * mapDialog.TileWidth, // WIDTH
+                                            mapDialog.MapHeight * mapDialog.TileHeight); // HEIGHT
+                newPictureBox.Location = new Point(0, 0);
+                newPictureBox.BackColor = Color.LightSkyBlue;
+                newPictureBox.Name = "pictureBox";
+                newPictureBox.Paint += new PaintEventHandler(pictureBox2_Paint);
+                newPictureBox.MouseClick += new MouseEventHandler(pictureBox2_MouseClick);
+
+                Label newLabel = new Label();
+                newLabel.Text = newTabPage.Text;
+                newLabel.Font = new Font("Tahoma", 9.75f, FontStyle.Bold);
+                newLabel.Location = new Point(10, 10);
+
+                Panel newPanel = new Panel();
+                newPanel.Controls.Add(newPictureBox);
+                newPanel.Size = new Size(newTabPage.Size.Width - 20, newTabPage.Size.Height - 20);
+                newPanel.Anchor = (AnchorStyles.Right | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Top);
+                newPanel.Location = new Point(10, 10);
+                newPanel.AutoScroll = true;
+                newPanel.Name = "panel";
+                //newTabPage.Controls.Add(newLabel);
+                newTabPage.Controls.Add(newPanel);
             }
         }
 
         private void SaveMap()
         {
-            if (_mapDocument.FileName == null)
+            if (_mapDocuments[this.krbTabControl1.SelectedIndex].FileName == null)
             {
                 SaveFileDialog saveDialog = new SaveFileDialog();
                 saveDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
@@ -101,11 +144,11 @@ namespace eztile
                 {
                     if (saveDialog.FileName != "")
                     {
-                        _mapDocument.FileName = saveDialog.FileName;
+                        _mapDocuments[this.krbTabControl1.SelectedIndex].FileName = saveDialog.FileName;
                         // Saves the Image via a FileStream created by the OpenFile method.
                         System.IO.FileStream fs =
                             (System.IO.FileStream)saveDialog.OpenFile();
-                        foreach (Map map in _mapDocument.GetLayers())
+                        foreach (Map map in _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers())
                         {
                             string testString = map.GetMapArray();
                             fs.Write(UnicodeEncoding.Unicode.GetBytes(testString),
@@ -117,9 +160,9 @@ namespace eztile
             }
             else
             {
-                using (var stream = File.OpenWrite(_mapDocument.FileName))
+                using (var stream = File.OpenWrite(_mapDocuments[this.krbTabControl1.SelectedIndex].FileName))
                 {
-                    foreach (Map map in _mapDocument.GetLayers())
+                    foreach (Map map in _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers())
                     {
                         string testString = map.GetMapArray();
                         stream.Write(UnicodeEncoding.Unicode.GetBytes(testString),
@@ -149,10 +192,11 @@ namespace eztile
                     pictureBox1.Width = newTilesheetDialog.TileSheet.Width;
                     pictureBox1.Height = newTilesheetDialog.TileSheet.Height;
                     pictureBox1.Image = newTilesheetDialog.TileSheet;
-                    _mapDocument.TileSheet = new TileSheet(newTilesheetDialog.FileName, newTilesheetDialog.TileSheet,
-                                                newTilesheetDialog.ImageName, newTilesheetDialog.TileWidth, newTilesheetDialog.TileHeight);
+                    foreach(MapDocument mdoc in _mapDocuments)
+                        mdoc.TileSheet = new TileSheet(newTilesheetDialog.FileName, newTilesheetDialog.TileSheet,
+                                                       newTilesheetDialog.ImageName, newTilesheetDialog.TileWidth, newTilesheetDialog.TileHeight);
                     _g = pictureBox1.CreateGraphics();
-                    _g2 = pictureBox2.CreateGraphics();
+                    //_g2 = this.krbTabControl1.SelectedTab.Controls["panel"].Controls["pictureBox"].CreateGraphics();
                 }
             }
         }
@@ -174,10 +218,10 @@ namespace eztile
                     return;
 
                 int x1, x2, y1, y2;
-                x1 = (e.X - e.X % _mapDocument.TileSheet.TileWidth);
-                x2 = x1 + _mapDocument.TileSheet.TileWidth;
-                y1 = (e.Y - e.Y % _mapDocument.TileSheet.TileHeight);
-                y2 = y1 + _mapDocument.TileSheet.TileHeight;
+                x1 = (e.X - e.X % _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileWidth);
+                x2 = x1 + _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileWidth;
+                y1 = (e.Y - e.Y % _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileHeight);
+                y2 = y1 + _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileHeight;
                 //MB.Avertir("{" + x1.ToString() + "," + y1.ToString() + "} - {" + x2.ToString() + "," + y2.ToString() + "}");
                 using (Pen myPen = new Pen(Color.Black, 1))
                 {
@@ -188,26 +232,27 @@ namespace eztile
                         _g.FillRectangle(solidBrush, rectangle);
                     }
                     //_g.DrawRectangle(myPen, rectangle);
-                    _selectedTile = _mapDocument.TileSheet.Image.Clone(rectangle, _mapDocument.TileSheet.Image.PixelFormat);
-                    _selectedTileId = y1 / _mapDocument.TileSheet.TileHeight * (_mapDocument.TileSheet.Image.Width / _mapDocument.TileSheet.TileWidth)
-                        + x2 / _mapDocument.TileSheet.TileWidth;
+                    _selectedTile = _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.Image.Clone(rectangle, _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.Image.PixelFormat);
+                    _selectedTileId = y1 / _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileHeight * (_mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.Image.Width / _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileWidth)
+                        + x2 / _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileWidth;
                 }
             }
         }
 
+        int pictureBox2eX, pictureBox2eY; // For the redraw of the selected tile in pictureBox1
         private void pictureBox2_MouseClick(object sender, MouseEventArgs e)
         {
-            if (_selectedTile != null)
+            if (_selectedTile != null && listBox1.SelectedIndex >= 0)
             {
-                int x1 = (e.X - e.X % _mapDocument.TileSheet.TileWidth);
-                int y1 = (e.Y - e.Y % _mapDocument.TileSheet.TileHeight);
-
-                _g2.DrawImage(_selectedTile, x1, y1);
+                pictureBox2eX = (e.X - e.X % _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileWidth);
+                pictureBox2eY = (e.Y - e.Y % _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileHeight);
+                this.krbTabControl1.SelectedTab.Controls["panel"].Controls["pictureBox"].Refresh();
+                //e.DrawImage(_selectedTile, x1, y1);
                 //_imageCopy = new Bitmap(pictureBox2.Image);
                 //_mapImage.Add(new CoordAndImage(_selectedTile, x1, y1)); HERE FOR REDRAW ISSUE
                 //MB.Avertir(x1.ToString() + "-" + y1.ToString());
-                _mapDocument.GetLayers()[listBox1.SelectedIndex].GetTile(x1 / _mapDocument.TileSheet.TileWidth, y1
-                    / _mapDocument.TileSheet.TileHeight).TileID = _selectedTileId;
+                _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers()[listBox1.SelectedIndex].GetTile(pictureBox2eX / _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileWidth, pictureBox2eY
+                    / _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileHeight).TileID = _selectedTileId;
             }
         }
 
@@ -216,10 +261,10 @@ namespace eztile
             if (_selectedTile != null)
             {
                 int x1, y1, x2, y2;
-                x1 = (pictureBox1eX - pictureBox1eX % _mapDocument.TileSheet.TileWidth);
-                x2 = x1 + _mapDocument.TileSheet.TileWidth;
-                y1 = (pictureBox1eY - pictureBox1eY % _mapDocument.TileSheet.TileHeight);
-                y2 = y1 + _mapDocument.TileSheet.TileHeight;
+                x1 = (pictureBox1eX - pictureBox1eX % _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileWidth);
+                x2 = x1 + _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileWidth;
+                y1 = (pictureBox1eY - pictureBox1eY % _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileHeight);
+                y2 = y1 + _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileHeight;
                 Rectangle rectangle = new Rectangle(x1, y1, x2 - x1, y2 - y1);
                 SolidBrush solidBrush = new SolidBrush(Color.FromArgb(100, 255, 0, 0));
                 e.Graphics.FillRectangle(solidBrush, rectangle);
@@ -228,11 +273,13 @@ namespace eztile
 
         private void pictureBox2_Paint(object sender, PaintEventArgs e)
         {
-
-            Rectangle rectangle = new Rectangle(0, 0, 32, 32);
-            SolidBrush solidBrush = new SolidBrush(Color.FromArgb(100, 255, 0, 0));
-            e.Graphics.FillRectangle(solidBrush, rectangle);
-            e.Graphics.DrawImageUnscaled(_selectedTile, 0, 0);
+            if (_selectedTile != null && listBox1.SelectedIndex >= 0)
+            {
+                Rectangle rectangle = new Rectangle(0, 0, 32, 32);
+                SolidBrush solidBrush = new SolidBrush(Color.FromArgb(100, 255, 0, 0));
+                // e.Graphics.FillRectangle(solidBrush, rectangle);
+                e.Graphics.DrawImage(_selectedTile, pictureBox2eX, pictureBox2eY);
+            }
         }
 
         private void AddLayer_Click(object sender, EventArgs e)
@@ -241,26 +288,26 @@ namespace eztile
             promptLayerName.ShowDialog();
             if (promptLayerName.DialogResult == DialogResult.OK)
             {
-                if (!pictureBox2.Enabled)
-                    pictureBox2.Enabled = true;
+                if (!this.krbTabControl1.SelectedTab.Controls["panel"].Controls["pictureBox"].Enabled)
+                    this.krbTabControl1.SelectedTab.Controls["panel"].Controls["pictureBox"].Enabled = true;
 
                 button2.Enabled = true;
-                _mapDocument.AddLayer(promptLayerName.PromptValue);
+                _mapDocuments[this.krbTabControl1.SelectedIndex].AddLayer(promptLayerName.PromptValue);
                 listBox1.DataSource = null;
-                listBox1.DataSource = _mapDocument.GetLayers();
-                //listBox1.Items.Add(_mapDocument.GetLayers()[_mapDocument.GetLayers().Count-1]);
+                listBox1.DataSource = _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers();
+                //listBox1.Items.Add(_mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers()[_mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers().Count-1]);
             }
         }
 
         private void RemoveLayer_Click(object sender, EventArgs e)
         {
-            _mapDocument.RemoveLayer(listBox1.SelectedIndex);
+            _mapDocuments[this.krbTabControl1.SelectedIndex].RemoveLayer(listBox1.SelectedIndex);
             listBox1.DataSource = null;
-            listBox1.DataSource = _mapDocument.GetLayers();
+            listBox1.DataSource = _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers();
             //listBox1.Items.RemoveAt(listBox1.SelectedIndex);
-            if (_mapDocument.GetLayers().Count == 0)
+            if (_mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers().Count == 0)
             {
-                pictureBox2.Enabled = false;
+                this.krbTabControl1.SelectedTab.Controls["pictureBox"].Enabled = false;
                 button2.Enabled = false;
             }
         }

@@ -1,0 +1,12 @@
+C:\Users\Francis\Desktop\New folder (3)\KRBTabControl\bin\Debug\KRBTabControl.dll
+C:\Users\Francis\Desktop\New folder (3)\KRBTabControl\bin\Debug\KRBTabControl.pdb
+C:\Users\Francis\Desktop\New folder (3)\KRBTabControl\obj\Debug\KRBTabControl.Resources.resources
+C:\Users\Francis\Desktop\New folder (3)\KRBTabControl\obj\Debug\KRBTabControl.csproj.GenerateResource.Cache
+C:\Users\Francis\Desktop\New folder (3)\KRBTabControl\obj\Debug\KRBTabControl.dll
+C:\Users\Francis\Desktop\New folder (3)\KRBTabControl\obj\Debug\KRBTabControl.pdb
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\KRBTabControl\bin\Debug\KRBTabControl.dll
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\KRBTabControl\bin\Debug\KRBTabControl.pdb
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\KRBTabControl\obj\Debug\KRBTabControl.Resources.resources
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\KRBTabControl\obj\Debug\KRBTabControl.csproj.GenerateResource.Cache
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\KRBTabControl\obj\Debug\KRBTabControl.dll
+C:\Users\Francis\Documents\GitHub\EzTile\eztile\KRBTabControl\obj\Debug\KRBTabControl.pdb
