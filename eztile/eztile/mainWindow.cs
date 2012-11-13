@@ -239,20 +239,16 @@ namespace eztile
             }
         }
 
-        int pictureBox2eX, pictureBox2eY; // For the redraw of the selected tile in pictureBox1
         private void pictureBox2_MouseClick(object sender, MouseEventArgs e)
         {
             if (_selectedTile != null && listBox1.SelectedIndex >= 0)
             {
-                pictureBox2eX = (e.X - e.X % _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileWidth);
-                pictureBox2eY = (e.Y - e.Y % _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileHeight);
-                this.krbTabControl1.SelectedTab.Controls["panel"].Controls["pictureBox"].Refresh();
-                //e.DrawImage(_selectedTile, x1, y1);
-                //_imageCopy = new Bitmap(pictureBox2.Image);
-                //_mapImage.Add(new CoordAndImage(_selectedTile, x1, y1)); HERE FOR REDRAW ISSUE
+                int pictureBox2eX = (e.X - e.X % _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileWidth);
+                int pictureBox2eY = (e.Y - e.Y % _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileHeight);
                 //MB.Avertir(x1.ToString() + "-" + y1.ToString());
                 _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers()[listBox1.SelectedIndex].GetTile(pictureBox2eX / _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileWidth, pictureBox2eY
                     / _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.TileHeight).TileID = _selectedTileId;
+                this.krbTabControl1.SelectedTab.Controls["panel"].Controls["pictureBox"].Refresh();
             }
         }
 
@@ -275,10 +271,23 @@ namespace eztile
         {
             if (_selectedTile != null && listBox1.SelectedIndex >= 0)
             {
-                Rectangle rectangle = new Rectangle(0, 0, 32, 32);
-                SolidBrush solidBrush = new SolidBrush(Color.FromArgb(100, 255, 0, 0));
-                // e.Graphics.FillRectangle(solidBrush, rectangle);
-                e.Graphics.DrawImage(_selectedTile, pictureBox2eX, pictureBox2eY);
+                int i= 0, j = 0;
+                foreach (Map map in _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers())
+                {
+                    foreach (Tile[] array1 in map.GetMap())
+                    {
+                        foreach (Tile tile in array1)
+                        {
+                            if (tile.TileID != 0)
+                                e.Graphics.DrawImage(_mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.GetTileFromId(tile.TileID), i * tile.Height, j * tile.Width);
+
+                            i++;
+                        }
+                        j++;
+                        i = 0;
+                    }
+                    j = 0;
+                }
             }
         }
 

@@ -52,5 +52,21 @@ namespace eztile
             _tileWidth = width;
             _tileHeight = height;
         }
+
+        public Bitmap GetTileFromId(int id)
+        {
+            if (id <= 0) // Must be a positive non-null integer
+                return null;
+
+            int x, y, x1, y1, width, height;
+            width = _image.Width / _tileWidth;
+            height = _image.Height / _tileHeight;
+            x = id % width - 1;
+            y = id / width;
+            x1 = x * _tileWidth;
+            y1 = y * _tileHeight;
+            Bitmap image = _image.Clone(new Rectangle(x1, y1, _tileWidth, _tileHeight), _image.PixelFormat);
+            return image;
+        }
     }
 }
