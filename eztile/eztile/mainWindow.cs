@@ -15,10 +15,8 @@ namespace eztile
     {
         List<MapDocument> _mapDocuments;
         Graphics _g = null;
-        Graphics _g2 = null;
         Bitmap _selectedTile = null;
         int _selectedTileId = -1;
-        Bitmap _imageCopy;
 
         public mainWindow()
         {
@@ -150,10 +148,13 @@ namespace eztile
                             (System.IO.FileStream)saveDialog.OpenFile();
                         foreach (Map map in _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers())
                         {
-                            string testString = map.GetMapArray();
+                            string testString = map.ToString();
                             fs.Write(UnicodeEncoding.Unicode.GetBytes(testString),
                                         0, UnicodeEncoding.Unicode.GetByteCount(testString));
                         }
+                        string TsName= _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.ImageName;
+                        fs.Write(UnicodeEncoding.Unicode.GetBytes(TsName),
+                                        0, UnicodeEncoding.Unicode.GetByteCount(TsName));
                         fs.Close();
                     }
                 }
@@ -164,10 +165,13 @@ namespace eztile
                 {
                     foreach (Map map in _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers())
                     {
-                        string testString = map.GetMapArray();
+                        string testString = map.ToString();
                         stream.Write(UnicodeEncoding.Unicode.GetBytes(testString),
                                     0, UnicodeEncoding.Unicode.GetByteCount(testString));
                     }
+                    string TsName = _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.ImageName;
+                    stream.Write(UnicodeEncoding.Unicode.GetBytes(TsName),
+                                    0, UnicodeEncoding.Unicode.GetByteCount(TsName));
                     stream.Close();
                 }
             }

@@ -52,18 +52,6 @@ namespace eztile
             _name = mapToCopy.Name;
         }
 
-        internal string GetMapArray()
-        {
-            string array = "FileName\n"+this._width+'\n'+this._height;
-            for (int i = 0; i != _height; i++) // En Y, haut - bas
-            {
-                array += '\n';
-                for (int j = 0; j != _width; j++)
-                    array += _map[i][j].TileID.ToString() + ',';
-            }
-            return array;
-        }
-
         public Tile[][] GetMap()
         {
             return _map;
@@ -76,7 +64,14 @@ namespace eztile
 
         public override string ToString()
         {
-            return _name;
+            string array = _name + "\n" + _width + '\n' + _height;
+            for (int i = 0; i != _height; i++) // En Y, haut - bas
+            {
+                array += '\n';
+                for (int j = 0; j != _width; j++)
+                    array += _map[i][j].TileID.ToString() + ',';
+            }
+            return array.Substring(0, array.Length-1) + '\n';
         }
     }
 }

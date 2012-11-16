@@ -10,3 +10,11 @@ C:\Users\Francis\Documents\GitHub\EzTile\eztile\KRBTabControl\obj\Debug\KRBTabCo
 C:\Users\Francis\Documents\GitHub\EzTile\eztile\KRBTabControl\obj\Debug\KRBTabControl.csproj.GenerateResource.Cache
 C:\Users\Francis\Documents\GitHub\EzTile\eztile\KRBTabControl\obj\Debug\KRBTabControl.dll
 C:\Users\Francis\Documents\GitHub\EzTile\eztile\KRBTabControl\obj\Debug\KRBTabControl.pdb
+C:\Documents and Settings\1022326\EzTile\eztile\KRBTabControl\bin\Debug\KRBTabControl.dll
+C:\Documents and Settings\1022326\EzTile\eztile\KRBTabControl\bin\Debug\KRBTabControl.pdb
+C:\Documents and Settings\1022326\EzTile\eztile\KRBTabControl\obj\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\1022326\EzTile\eztile\KRBTabControl\obj\Debug\KRBTabControl.Resources.resources
+C:\Documents and Settings\1022326\EzTile\eztile\KRBTabControl\obj\Debug\GenerateResource.read.1.tlog
+C:\Documents and Settings\1022326\EzTile\eztile\KRBTabControl\obj\Debug\GenerateResource.write.1.tlog
+C:\Documents and Settings\1022326\EzTile\eztile\KRBTabControl\obj\Debug\KRBTabControl.dll
+C:\Documents and Settings\1022326\EzTile\eztile\KRBTabControl\obj\Debug\KRBTabControl.pdb
