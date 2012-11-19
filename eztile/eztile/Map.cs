@@ -62,7 +62,7 @@ namespace eztile
             return _map[y][x];
         }
 
-        public override string ToString()
+        public string StringFormat()
         {
             string array = _name + "\n" + _width + '\n' + _height;
             for (int i = 0; i != _height; i++) // En Y, haut - bas
@@ -71,7 +71,11 @@ namespace eztile
                 for (int j = 0; j != _width; j++)
                     array += _map[i][j].TileID.ToString() + ',';
             }
-            return array.Substring(0, array.Length-1) + '\n';
+            return array.Substring(0, array.Length - 1) + '\n';
+        }
+        public override string ToString()
+        {
+            return _name;
         }
     }
 }

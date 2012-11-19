@@ -22,10 +22,12 @@ namespace eztile
         {
             InitializeComponent();
             _mapDocuments = new List<MapDocument>();
-            //pictureBox2.Enabled = false;
-            pictureBox1.MouseMove += new MouseEventHandler(pictureBox1_MouseMove);
-            krbTabControl1.TabIndexChanged += new EventHandler(tabChange);
-            //krbTabControl1. += new EventHandler(tabClose);
+            saveAsToolStripMenuItem.Enabled = false;
+            saveToolStripMenuItem.Enabled = false;
+            toolSave.Enabled = false;
+            //pictureBox1.MouseMove += new MouseEventHandler(pictureBox1_MouseMove);
+            //krbTabControl1.TabIndexChanged += new EventHandler(tabChange);
+            krbTabControl1.TabPageClosing += new EventHandler<KRBTabControl.KRBTabControl.SelectedIndexChangingEventArgs>(tabClose);
         }
 
         private void tabChange(object sender, EventArgs e)
@@ -37,8 +39,21 @@ namespace eztile
 
         private void tabClose(object sender, EventArgs e)
         {
-            listBox1.DataSource = null;
-            listBox1.DataSource = _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers();
+            if (krbTabControl1.TabCount == 1)
+            {
+                saveAsToolStripMenuItem.Enabled = false;
+                saveToolStripMenuItem.Enabled = false;
+                toolSave.Enabled = false;
+            }
+            else
+            {
+                listBox1.DataSource = null;
+                listBox1.DataSource = _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers();
+            }
+            // CLOSE WITHOUT SAVING ? YES - NO
+            //if (!MB.ConfirmerOuiNon("Close without saving ?"))
+                //SaveMap();
+            _mapDocuments.RemoveAt(krbTabControl1.SelectedIndex);
         }
 
         private void mainWindow_Load(object sender, EventArgs e)
@@ -63,12 +78,23 @@ namespace eztile
 
         private void toolSave_Click(object sender, EventArgs e)
         {
-            SaveMap();
+            if (_mapDocuments[this.krbTabControl1.SelectedIndex].FileName == null)
+                SaveAs();
+            else
+                SaveMap();
         }
 
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SaveMap();
+            if (_mapDocuments[this.krbTabControl1.SelectedIndex].FileName == null)
+                SaveAs();
+            else
+                SaveMap();
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveAs();
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -96,7 +122,9 @@ namespace eztile
                                         mapDialog.TileWidth, mapDialog.TileHeight));
 
                 button1.Enabled = true;
-                button2.Enabled = true;
+                saveAsToolStripMenuItem.Enabled = true;
+                saveToolStripMenuItem.Enabled = true;
+                toolSave.Enabled = true;
                 newTileSet.Enabled = true;
 
                 // CREATE THE KRB TAB
@@ -133,46 +161,56 @@ namespace eztile
 
         private void SaveMap()
         {
-            if (_mapDocuments[this.krbTabControl1.SelectedIndex].FileName == null)
+            using (var stream = File.OpenWrite(_mapDocuments[this.krbTabControl1.SelectedIndex].FileName))
             {
-                SaveFileDialog saveDialog = new SaveFileDialog();
-                saveDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
-                saveDialog.Title = "Save a map file";
-                if (saveDialog.ShowDialog() == DialogResult.OK)
+                string nbLayers = _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers().Count.ToString() + '\n';
+                stream.Write(UnicodeEncoding.Unicode.GetBytes(nbLayers),
+                            0, UnicodeEncoding.Unicode.GetByteCount(nbLayers));
+                foreach (Map map in _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers())
                 {
-                    if (saveDialog.FileName != "")
-                    {
-                        _mapDocuments[this.krbTabControl1.SelectedIndex].FileName = saveDialog.FileName;
-                        // Saves the Image via a FileStream created by the OpenFile method.
-                        System.IO.FileStream fs =
-                            (System.IO.FileStream)saveDialog.OpenFile();
-                        foreach (Map map in _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers())
-                        {
-                            string testString = map.ToString();
-                            fs.Write(UnicodeEncoding.Unicode.GetBytes(testString),
-                                        0, UnicodeEncoding.Unicode.GetByteCount(testString));
-                        }
-                        string TsName= _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.ImageName;
-                        fs.Write(UnicodeEncoding.Unicode.GetBytes(TsName),
-                                        0, UnicodeEncoding.Unicode.GetByteCount(TsName));
-                        fs.Close();
-                    }
+                    string testString = map.StringFormat();
+                    stream.Write(UnicodeEncoding.Unicode.GetBytes(testString),
+                                0, UnicodeEncoding.Unicode.GetByteCount(testString));
                 }
-            }
-            else
-            {
-                using (var stream = File.OpenWrite(_mapDocuments[this.krbTabControl1.SelectedIndex].FileName))
+                if (_mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet != null)
                 {
-                    foreach (Map map in _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers())
-                    {
-                        string testString = map.ToString();
-                        stream.Write(UnicodeEncoding.Unicode.GetBytes(testString),
-                                    0, UnicodeEncoding.Unicode.GetByteCount(testString));
-                    }
                     string TsName = _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.ImageName;
                     stream.Write(UnicodeEncoding.Unicode.GetBytes(TsName),
                                     0, UnicodeEncoding.Unicode.GetByteCount(TsName));
-                    stream.Close();
+                }
+                stream.Close();
+            }
+        }
+
+        private void SaveAs()
+        {
+            SaveFileDialog saveDialog = new SaveFileDialog();
+            saveDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+            saveDialog.Title = "Save a map file";
+            if (saveDialog.ShowDialog() == DialogResult.OK)
+            {
+                if (saveDialog.FileName != "")
+                {
+                    _mapDocuments[this.krbTabControl1.SelectedIndex].FileName = saveDialog.FileName;
+                    // Saves the Image via a FileStream created by the OpenFile method.
+                    System.IO.FileStream fs =
+                        (System.IO.FileStream)saveDialog.OpenFile();
+                    string nbLayers = _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers().Count.ToString() + '\n';
+                    fs.Write(UnicodeEncoding.Unicode.GetBytes(nbLayers),
+                                0, UnicodeEncoding.Unicode.GetByteCount(nbLayers));
+                    foreach (Map map in _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers())
+                    {
+                        string testString = map.StringFormat();
+                        fs.Write(UnicodeEncoding.Unicode.GetBytes(testString),
+                                    0, UnicodeEncoding.Unicode.GetByteCount(testString));
+                    }
+                    if (_mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet != null)
+                    {
+                        string TsName = _mapDocuments[this.krbTabControl1.SelectedIndex].TileSheet.ImageName;
+                        fs.Write(UnicodeEncoding.Unicode.GetBytes(TsName),
+                                        0, UnicodeEncoding.Unicode.GetByteCount(TsName));
+                    }
+                    fs.Close();
                 }
             }
         }
@@ -200,7 +238,6 @@ namespace eztile
                         mdoc.TileSheet = new TileSheet(newTilesheetDialog.FileName, newTilesheetDialog.TileSheet,
                                                        newTilesheetDialog.ImageName, newTilesheetDialog.TileWidth, newTilesheetDialog.TileHeight);
                     _g = pictureBox1.CreateGraphics();
-                    //_g2 = this.krbTabControl1.SelectedTab.Controls["panel"].Controls["pictureBox"].CreateGraphics();
                 }
             }
         }
@@ -314,13 +351,17 @@ namespace eztile
 
         private void RemoveLayer_Click(object sender, EventArgs e)
         {
-            _mapDocuments[this.krbTabControl1.SelectedIndex].RemoveLayer(listBox1.SelectedIndex);
-            listBox1.DataSource = null;
-            listBox1.DataSource = _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers();
-            //listBox1.Items.RemoveAt(listBox1.SelectedIndex);
+            if (_mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers().Count != 0)
+            {
+                _mapDocuments[this.krbTabControl1.SelectedIndex].RemoveLayer(listBox1.SelectedIndex);
+                listBox1.DataSource = null;
+                listBox1.DataSource = _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers();
+                //listBox1.Items.RemoveAt(listBox1.SelectedIndex);
+            }
+
             if (_mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers().Count == 0)
             {
-                this.krbTabControl1.SelectedTab.Controls["pictureBox"].Enabled = false;
+                this.krbTabControl1.SelectedTab.Controls["panel"].Controls["pictureBox"].Enabled = false;
                 button2.Enabled = false;
             }
         }

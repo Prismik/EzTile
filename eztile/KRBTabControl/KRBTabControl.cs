@@ -2768,7 +2768,7 @@ namespace KRBTabControl
 
                 if (rct.Width > 0)
                 {
-                    using (Font captionFont = new System.Drawing.Font(this.Font.Name, this.Font.Size > 12 ? 12 : this.Font.Size, this.Focused || this.ContainsFocus ? _gradientCaption.ActiveCaptionFontStyle : FontStyle.Regular, GraphicsUnit.Pixel))
+                    using (Font captionFont = new System.Drawing.Font(this.Font.Name, 15.0f, this.Focused || this.ContainsFocus ? _gradientCaption.ActiveCaptionFontStyle : FontStyle.Regular, GraphicsUnit.Pixel))
                     {
                         bool isContainsTabPages = this.SelectedTab != null ? true : false;
 
@@ -2784,7 +2784,7 @@ namespace KRBTabControl
                             captionTextFormat.Trimming = StringTrimming.EllipsisCharacter;
                             captionTextFormat.HotkeyPrefix = System.Drawing.Text.HotkeyPrefix.Hide;
 
-                            gfx.DrawString(isContainsTabPages ? this.SelectedTab.Text : "Tab container is empty, drag or add a new tab page here!", captionFont,
+                            gfx.DrawString(isContainsTabPages ? this.SelectedTab.Text : "No document opened ...", captionFont,
                                 captionTextBrush, rct, captionTextFormat);
                         }
                     }
