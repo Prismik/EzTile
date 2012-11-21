@@ -185,7 +185,7 @@ namespace eztile
         private void SaveAs()
         {
             SaveFileDialog saveDialog = new SaveFileDialog();
-            saveDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+            saveDialog.Filter = "txt files (*.txt)|*.txt|game map document (*.gmd)|Xml (*.xml)|*.gmd|All files (*.*)|*.*";
             saveDialog.Title = "Save a map file";
             if (saveDialog.ShowDialog() == DialogResult.OK)
             {
@@ -211,6 +211,9 @@ namespace eztile
                                         0, UnicodeEncoding.Unicode.GetByteCount(TsName));
                     }
                     fs.Close();
+                    string[] file= saveDialog.FileName.Split('\\');
+                    this.krbTabControl1.SelectedTab.Text = file[file.Length-1];
+                    this.krbTabControl1.SelectedTab.Name = file[file.Length - 1];
                 }
             }
         }
@@ -354,6 +357,7 @@ namespace eztile
             if (_mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers().Count != 0)
             {
                 _mapDocuments[this.krbTabControl1.SelectedIndex].RemoveLayer(listBox1.SelectedIndex);
+                this.krbTabControl1.SelectedTab.Controls["panel"].Controls["pictureBox"].Refresh();
                 listBox1.DataSource = null;
                 listBox1.DataSource = _mapDocuments[this.krbTabControl1.SelectedIndex].GetLayers();
                 //listBox1.Items.RemoveAt(listBox1.SelectedIndex);

@@ -58,3 +58,21 @@ C:\Documents and Settings\1022326\EzTile\eztile\eztile\obj\x86\Debug\eztile.Prom
 C:\Documents and Settings\1022326\EzTile\eztile\eztile\obj\x86\Debug\eztile.Properties.Resources.resources
 C:\Documents and Settings\1022326\EzTile\eztile\eztile\obj\x86\Debug\GenerateResource.read.1.tlog
 C:\Documents and Settings\1022326\EzTile\eztile\eztile\obj\x86\Debug\GenerateResource.write.1.tlog
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\bin\Debug\EzTile.exe.config
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\obj\x86\Debug\EzTile.exe
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\obj\x86\Debug\EzTile.pdb
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\bin\Debug\EzTile.exe
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\bin\Debug\EzTile.pdb
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\bin\Debug\KRBTabControl.dll
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\bin\Debug\UtilStJ.dll
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\bin\Debug\KRBTabControl.pdb
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\bin\Debug\UtilStJ.xml
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\obj\x86\Debug\eztile.About.resources
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\obj\x86\Debug\eztile.mainWindow.resources
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\obj\x86\Debug\eztile.newMap.resources
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\obj\x86\Debug\eztile.newTileSheet.resources
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\obj\x86\Debug\eztile.Prompt.resources
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\obj\x86\Debug\eztile.Properties.Resources.resources
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\obj\x86\Debug\GenerateResource.read.1.tlog
+C:\Documents and Settings\1022326\Bureau\Nouveau dossier\EzTile\eztile\eztile\obj\x86\Debug\GenerateResource.write.1.tlog
